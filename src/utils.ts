@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { PiggyBank, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import {
+  Minus,
+  PiggyBank,
+  TrendingDown,
+  TrendingUp,
+  Wallet
+} from 'lucide-react'
 
 export const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
@@ -21,6 +27,18 @@ export const formatAmount = (
   if (type) return type === 'income' ? `+${formatted}` : `-${formatted}`
 
   return formatted
+}
+
+export const getPercentage = (spent: number, budget: number) => {
+  return Math.min((spent / budget) * 100, 100)
+}
+
+export const getStatus = (percentage: number) => {
+  if (percentage >= 90)
+    return { color: 'text-red-600', bg: 'bg-red-100', icon: TrendingUp }
+  if (percentage >= 70)
+    return { color: 'text-amber-600', bg: 'bg-amber-100', icon: Minus }
+  return { color: 'text-emerald-600', bg: 'bg-emerald-100', icon: TrendingDown }
 }
 
 export const formatCurrency = (amount: number) => {
