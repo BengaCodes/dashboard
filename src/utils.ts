@@ -49,6 +49,35 @@ export const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
+export const calculateMetrics = (transactions: any, budgets: any) => {
+  const currentMonth = new Date().getMonth()
+  const currentYear = new Date().getFullYear()
+
+  const currentMonthTransactions = transactions.filter((t: any) => {
+    const date = new Date(t.date)
+    return (
+      date.getMonth() === currentMonth && date.getFullYear() === currentYear
+    )
+  })
+
+  const totalIncome = currentMonthTransactions
+    .filter((t: any) => t.type === 'income')
+    .reduce((sum: any, t: any) => sum + Number(t.amount), 0)
+
+  const totalExpenses = currentMonthTransactions
+    .filter((t: any) => t.type === 'expense')
+    .reduce((sum: any, t: any) => sum + Number(t.amount), 0)
+
+  const balance = totalIncome - totalExpenses
+
+  const totalBudget = budgets.reduce(
+    (sum: any, b: any) => sum + Number(b.amount),
+    0
+  )
+
+  return { totalIncome, totalExpenses, balance, totalBudget }
+}
+
 export const metricsList = (metrics: any) => {
   return [
     {
