@@ -72,13 +72,10 @@ export const calculateMetrics = (transactions: any, budgets: any) => {
     0
   )
 
-  console.log({ totalExpenses, totalBudget, totalIncome, balance })
-
   return { totalIncome, totalExpenses, balance, totalBudget }
 }
 
 export const metricsList = (metrics: any) => {
-  console.log({ metrics })
   return [
     {
       title: 'Total Balance',

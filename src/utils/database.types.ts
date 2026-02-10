@@ -32,7 +32,7 @@ export type BudgetWithCategory = Budget & {
 }
 
 export type TransactionWithCategory = Transaction & {
-  category: Category
+  categories: Category
 }
 
 // Insert types (without id and created_at)

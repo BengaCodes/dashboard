@@ -6,6 +6,8 @@ const TransactionsList = ({
 }: {
   transactions: TransactionWithCategory[]
 }) => {
+  console.log({ transactions })
+
   return (
     <div className='bg-white rounded-xl shadow-sm border border-gray-100'>
       <div className='p-6 border-b border-gray-100'>

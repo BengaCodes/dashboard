@@ -9,11 +9,31 @@ export async function seedData() {
   try {
     // Insert sample categories
     const categoryData: CategoryInsert[] = [
-      { name: 'Food & Dining', type: 'expense', color: '#FF6B6B', icon: '🍔' },
-      { name: 'Transportation', type: 'expense', color: '#4ECDC4', icon: '🚗' },
-      { name: 'Entertainment', type: 'expense', color: '#95E1D3', icon: '🎬' },
-      { name: 'Salary', type: 'income', color: '#38A169', icon: '💰' },
-      { name: 'Shopping', type: 'expense', color: '#9B59B6', icon: '🛍️' }
+      {
+        name: 'Food & Dining',
+        type: 'expense',
+        color: '#FF6B6B',
+        icon: 'Utensils'
+      },
+      {
+        name: 'Transportation',
+        type: 'expense',
+        color: '#4ECDC4',
+        icon: 'Car'
+      },
+      {
+        name: 'Entertainment',
+        type: 'expense',
+        color: '#95E1D3',
+        icon: 'Film'
+      },
+      { name: 'Salary', type: 'income', color: '#38A169', icon: 'DollarSign' },
+      {
+        name: 'Shopping',
+        type: 'expense',
+        color: '#9B59B6',
+        icon: 'ShoppingBag'
+      }
     ]
 
     const { data: categories, error: categoriesError } = await supabase
@@ -84,5 +104,3 @@ export async function seedData() {
     console.error('Error seeding data:', error)
   }
 }
-
-seedData()

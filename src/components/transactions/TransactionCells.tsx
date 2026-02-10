@@ -15,12 +15,12 @@ const TransactionCell = ({
       <div className='flex items-center gap-4'>
         <div
           className='p-2 rounded-lg'
-          style={{ backgroundColor: `${transaction.category?.color}15` }}
+          style={{ backgroundColor: `${transaction.categories.color}15` }}
         >
           <Icon
-            iconName={transaction.category?.icon}
+            iconName={transaction.categories?.icon}
             className='w-5 h-5'
-            style={{ color: transaction.category?.color }}
+            style={{ color: transaction.categories?.color }}
           />
         </div>
         <div className='flex-1 min-w-0'>
@@ -29,7 +29,7 @@ const TransactionCell = ({
           </p>
           <div className='flex items-center gap-2 mt-0 5'>
             <p className='text-sm text-gray-500'>
-              {transaction.category?.name || 'Uncategorised'}
+              {transaction.categories?.name || 'Uncategorised'}
             </p>
             <span className='text-gray-300'>•</span>
             <p className='text-sm text-gray-500'>
