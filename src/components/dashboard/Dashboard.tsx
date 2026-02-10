@@ -84,7 +84,10 @@ const Dashboard = () => {
     }
   }
 
-  const metrics = useMemo(() => calculateMetrics([], []), [])
+  const metrics = useMemo(
+    () => calculateMetrics(transactions, budgets),
+    [transactions, budgets]
+  )
 
   const metricList = useMemo(() => metricsList(metrics), [metrics])
 

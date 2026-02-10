@@ -41,7 +41,7 @@ export const getStatus = (percentage: number) => {
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-UK', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'GBP',
     minimumFractionDigits: 0
   }).format(amount)
 }
@@ -72,10 +72,13 @@ export const calculateMetrics = (transactions: any, budgets: any) => {
     0
   )
 
+  console.log({ totalExpenses, totalBudget, totalIncome, balance })
+
   return { totalIncome, totalExpenses, balance, totalBudget }
 }
 
 export const metricsList = (metrics: any) => {
+  console.log({ metrics })
   return [
     {
       title: 'Total Balance',
@@ -95,7 +98,7 @@ export const metricsList = (metrics: any) => {
     },
     {
       title: 'Total Expenses',
-      value: formatCurrency(metrics.totalExpense),
+      value: formatCurrency(metrics.totalExpenses),
       change: 'This month',
       changeType: 'negative',
       icon: TrendingDown,
@@ -103,7 +106,7 @@ export const metricsList = (metrics: any) => {
     },
     {
       title: 'Total Budget',
-      value: formatCurrency(metrics.Budget),
+      value: formatCurrency(metrics.totalBudget),
       change: 'Monthly limit',
       changeType: 'neutral',
       icon: PiggyBank,
