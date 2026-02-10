@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { formatAmount } from '../../utils'
+import { formatAmount } from '../../utils/utils'
 
 const ChartItem = ({ data }: { data: any }) => {
   return (

@@ -1,7 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { TransactionWithCategory } from '../../utils/database.types'
 import TransactionCell from './TransactionCells'
 
-const TransactionsList = ({ transactions }: { transactions: any }) => {
+const TransactionsList = ({
+  transactions
+}: {
+  transactions: TransactionWithCategory[]
+}) => {
   return (
     <div className='bg-white rounded-xl shadow-sm border border-gray-100'>
       <div className='p-6 border-b border-gray-100'>
@@ -15,7 +19,9 @@ const TransactionsList = ({ transactions }: { transactions: any }) => {
             No transactions yet
           </div>
         ) : (
-          transactions.map((tr: any) => <TransactionCell transaction={tr} />)
+          transactions.map((tr: TransactionWithCategory) => (
+            <TransactionCell key={tr.id} transaction={tr} />
+          ))
         )}
       </div>
     </div>

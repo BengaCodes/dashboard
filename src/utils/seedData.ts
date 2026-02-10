@@ -1,0 +1,88 @@
+import type {
+  BudgetInsert,
+  CategoryInsert,
+  TransactionInsert
+} from './database.types'
+import supabase from './supabase'
+
+export async function seedData() {
+  try {
+    // Insert sample categories
+    const categoryData: CategoryInsert[] = [
+      { name: 'Food & Dining', type: 'expense', color: '#FF6B6B', icon: '🍔' },
+      { name: 'Transportation', type: 'expense', color: '#4ECDC4', icon: '🚗' },
+      { name: 'Entertainment', type: 'expense', color: '#95E1D3', icon: '🎬' },
+      { name: 'Salary', type: 'income', color: '#38A169', icon: '💰' },
+      { name: 'Shopping', type: 'expense', color: '#9B59B6', icon: '🛍️' }
+    ]
+
+    const { data: categories, error: categoriesError } = await supabase
+      .from('categories')
+      .insert(categoryData)
+      .select()
+
+    if (categoriesError) throw categoriesError
+    console.log('Categories inserted:', categories)
+
+    // Insert sample budgets
+    const budgetData: BudgetInsert[] = [
+      { amount: 50000, period: 'monthly', category_id: categories![0].id },
+      { amount: 30000, period: 'monthly', category_id: categories![1].id },
+      { amount: 20000, period: 'monthly', category_id: categories![2].id }
+    ]
+
+    const { data: budgets, error: budgetsError } = await supabase
+      .from('budgets')
+      .insert(budgetData)
+      .select()
+
+    if (budgetsError) throw budgetsError
+    console.log('Budgets inserted:', budgets)
+
+    // Insert sample transactions
+    const transactionData: TransactionInsert[] = [
+      {
+        amount: 1500,
+        description: 'Lunch at restaurant',
+        date: '2026-02-08',
+        type: 'expense',
+        category_id: categories![0].id
+      },
+      {
+        amount: 5000,
+        description: 'Gas refill',
+        date: '2026-02-07',
+        type: 'expense',
+        category_id: categories![1].id
+      },
+      {
+        amount: 3000,
+        description: 'Movie tickets',
+        date: '2026-02-06',
+        type: 'expense',
+        category_id: categories![2].id
+      },
+      {
+        amount: 150000,
+        description: 'Monthly salary',
+        date: '2026-02-01',
+        type: 'income',
+        category_id: categories![3].id
+      }
+    ]
+
+    const { data: transactions, error: transactionsError } = await supabase
+      .from('transactions')
+      .insert(transactionData)
+      .select()
+
+    if (transactionsError) throw transactionsError
+    console.log('Transactions inserted:', transactions)
+
+    console.log('✅ Sample data seeded successfully!')
+  } catch (error) {
+    console.error('Error seeding data:', error)
+  }
+}
+
+seedData()

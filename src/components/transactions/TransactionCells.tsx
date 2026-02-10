@@ -1,9 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Icons from 'lucide-react'
-import { formatAmount, formatDate } from '../../utils'
+import { formatAmount, formatDate } from '../../utils/utils'
 import { Icon } from '../common/Icons'
+import type { TransactionWithCategory } from '../../utils/database.types'
 
-const TransactionCell = ({ transaction }: { transaction: any }) => {
+const TransactionCell = ({
+  transaction
+}: {
+  transaction: TransactionWithCategory
+}) => {
   const isIncome = transaction.type === 'income'
 
   return (
@@ -11,12 +15,12 @@ const TransactionCell = ({ transaction }: { transaction: any }) => {
       <div className='flex items-center gap-4'>
         <div
           className='p-2 rounded-lg'
-          style={{ backgroundColor: `${transaction.categories?.color}15` }}
+          style={{ backgroundColor: `${transaction.category?.color}15` }}
         >
           <Icon
-            iconName={transaction.categories?.icon}
+            iconName={transaction.category?.icon}
             className='w-5 h-5'
-            style={{ color: transaction.categories?.color }}
+            style={{ color: transaction.category?.color }}
           />
         </div>
         <div className='flex-1 min-w-0'>
@@ -25,7 +29,7 @@ const TransactionCell = ({ transaction }: { transaction: any }) => {
           </p>
           <div className='flex items-center gap-2 mt-0 5'>
             <p className='text-sm text-gray-500'>
-              {transaction.categories?.name || 'Uncategorised'}
+              {transaction.category?.name || 'Uncategorised'}
             </p>
             <span className='text-gray-300'>•</span>
             <p className='text-sm text-gray-500'>

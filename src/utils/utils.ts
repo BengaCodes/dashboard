@@ -15,10 +15,7 @@ export const formatDate = (dateStr: string) => {
   }).format(date)
 }
 
-export const formatAmount = (
-  amount: number,
-  type?: 'income' | 'expenditure'
-) => {
+export const formatAmount = (amount: number, type?: 'income' | 'expense') => {
   const formatted = new Intl.NumberFormat('en-Uk', {
     style: 'currency',
     currency: 'GBP'

@@ -1,8 +1,8 @@
-import { getPercentage } from '../../utils'
+import type { BudgetWithCategory } from '../../utils/database.types'
+import { getPercentage } from '../../utils/utils'
 import Budget from './Budget'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const BudgetOverview = ({ budgets }: { budgets: any }) => {
+const BudgetOverview = ({ budgets }: { budgets: BudgetWithCategory[] }) => {
   return (
     <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-6'>
       <h2 className='text-lg font-semibold text-gray-900 mb-6'>
@@ -12,13 +12,13 @@ const BudgetOverview = ({ budgets }: { budgets: any }) => {
         {budgets.length === 0 ? (
           <div className='text-center text-gray-500 py-8'>No budgets set</div>
         ) : (
-          budgets.map((budget: any, i: number) => (
+          budgets.map((budget: BudgetWithCategory) => (
             <Budget
-              key={budget.categories.name + i}
-              name={budget.categories.name}
+              key={budget.id}
+              name={budget.category?.name}
               percentage={getPercentage(budget.spent, budget.amount)}
               remaining={budget.amount - budget.spent}
-              bgColor={budget.categories.color}
+              bgColor={budget.category?.color}
               amount={budget.amount}
               spent={budget.spent}
             />

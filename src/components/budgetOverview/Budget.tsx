@@ -1,4 +1,4 @@
-import { formatAmount, getStatus } from '../../utils'
+import { formatAmount, getStatus } from '../../utils/utils'
 
 interface BudgetProps {
   percentage: number
