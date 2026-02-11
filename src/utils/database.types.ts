@@ -27,7 +27,7 @@ export type Transaction = {
 
 // Extended types with relations
 export type BudgetWithCategory = Budget & {
-  category: Category
+  categories: Category
   spent: number
 }
 

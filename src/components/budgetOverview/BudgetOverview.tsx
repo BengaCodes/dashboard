@@ -15,10 +15,10 @@ const BudgetOverview = ({ budgets }: { budgets: BudgetWithCategory[] }) => {
           budgets.map((budget: BudgetWithCategory) => (
             <Budget
               key={budget.id}
-              name={budget.category?.name}
+              name={budget.categories?.name}
               percentage={getPercentage(budget.spent, budget.amount)}
               remaining={budget.amount - budget.spent}
-              bgColor={budget.category?.color}
+              bgColor={budget.categories?.color}
               amount={budget.amount}
               spent={budget.spent}
             />

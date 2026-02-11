@@ -10,7 +10,6 @@ export const Icon = ({
   iconName: string
   [key: string]: any
 }) => {
-  console.log({ iconName })
   const IconCmp = (Icons as any)[iconName] as LucideIcon
   return <IconCmp {...props} />
 }

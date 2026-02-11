@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
-import { calculateMetrics, metricsList } from '../../utils/utils'
+import {
+  calculateMetrics,
+  getSpendingByCategory,
+  metricsList
+} from '../../utils/utils'
 import MetricCard from '../metricCard/MetricCard'
 import TransactionsList from '../transactions/TransactionsList'
 import SpendingChart from '../spendingChart/SpendingChart'
@@ -35,7 +39,7 @@ const Dashboard = () => {
           .order('date', { ascending: true })
           .limit(15),
         supabase.from('categories').select('*'),
-        supabase.from('budgets').select('*')
+        supabase.from('budgets').select('*, categories(*)')
       ])
 
       if (transactionsRes.error) throw transactionsRes.error
@@ -89,6 +93,11 @@ const Dashboard = () => {
     [transactions, budgets]
   )
 
+  const spendingData = useMemo(
+    () => getSpendingByCategory(categories, transactions),
+    [categories, transactions]
+  )
+
   const metricList = useMemo(() => metricsList(metrics), [metrics])
 
   if (loading) return <div>loading...</div>
@@ -114,7 +123,7 @@ const Dashboard = () => {
             <TransactionsList transactions={transactions} />
           </div>
           <div className='space-y-6'>
-            <SpendingChart data={[]} />
+            <SpendingChart data={spendingData} />
             <BudgetOverview budgets={budgets} />
           </div>
         </div>

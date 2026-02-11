@@ -6,6 +6,7 @@ import {
   TrendingUp,
   Wallet
 } from 'lucide-react'
+import type { Category, TransactionWithCategory } from './database.types'
 
 export const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
@@ -73,6 +74,42 @@ export const calculateMetrics = (transactions: any, budgets: any) => {
   )
 
   return { totalIncome, totalExpenses, balance, totalBudget }
+}
+
+export const getSpendingByCategory = (
+  categories: Category[],
+  transactions: TransactionWithCategory[]
+) => {
+  const currentMonth = new Date().getMonth()
+  const currentYear = new Date().getFullYear()
+
+  const expenseCategories = categories.filter((c) => c.type === 'expense')
+
+  const spending = expenseCategories
+    .map((category) => {
+      const amount = transactions
+        .filter((t) => {
+          const date = new Date(t.date)
+          return (
+            t.category_id === category.id &&
+            t.type === 'expense' &&
+            date.getMonth() === currentMonth &&
+            date.getFullYear() === currentYear
+          )
+        })
+        .reduce((sum, t) => sum + Number(t.amount), 0)
+
+      return { category, amount }
+    })
+    .filter((item) => item.amount > 0)
+    .sort((a, b) => b.amount - a.amount)
+
+  const total = spending.reduce((sum, item) => sum + item.amount, 0)
+
+  return spending.map((item) => ({
+    ...item,
+    percentage: (item.amount / total) * 100
+  }))
 }
 
 export const metricsList = (metrics: any) => {
