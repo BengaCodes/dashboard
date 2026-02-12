@@ -2,12 +2,17 @@ import * as Icons from 'lucide-react'
 import { formatAmount, formatDate } from '../../utils/utils'
 import { Icon } from '../common/Icons'
 import type { TransactionWithCategory } from '../../utils/database.types'
+import IconButton from '../common/IconButton'
+
+type TransactionCellProps = {
+  transaction: TransactionWithCategory
+  handleDelete: () => void
+}
 
 const TransactionCell = ({
-  transaction
-}: {
-  transaction: TransactionWithCategory
-}) => {
+  transaction,
+  handleDelete
+}: TransactionCellProps) => {
   const isIncome = transaction.type === 'income'
 
   return (
@@ -47,6 +52,11 @@ const TransactionCell = ({
           ) : (
             <Icons.ArrowDownRight className='w-4 h-4 text-red-600' />
           )}
+          <IconButton
+            icon={Icons.Trash2}
+            variant='danger'
+            onClick={handleDelete}
+          />
         </div>
       </div>
     </div>

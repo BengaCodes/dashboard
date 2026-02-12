@@ -51,7 +51,7 @@ export const calculateMetrics = (transactions: any, budgets: any) => {
   const currentMonth = new Date().getMonth()
   const currentYear = new Date().getFullYear()
 
-  const currentMonthTransactions = transactions.filter((t: any) => {
+  const currentMonthTransactions = transactions?.filter((t: any) => {
     const date = new Date(t.date)
     return (
       date.getMonth() === currentMonth && date.getFullYear() === currentYear
@@ -59,16 +59,16 @@ export const calculateMetrics = (transactions: any, budgets: any) => {
   })
 
   const totalIncome = currentMonthTransactions
-    .filter((t: any) => t.type === 'income')
+    ?.filter((t: any) => t.type === 'income')
     .reduce((sum: any, t: any) => sum + Number(t.amount), 0)
 
   const totalExpenses = currentMonthTransactions
-    .filter((t: any) => t.type === 'expense')
+    ?.filter((t: any) => t.type === 'expense')
     .reduce((sum: any, t: any) => sum + Number(t.amount), 0)
 
   const balance = totalIncome - totalExpenses
 
-  const totalBudget = budgets.reduce(
+  const totalBudget = budgets?.reduce(
     (sum: any, b: any) => sum + Number(b.amount),
     0
   )
@@ -83,12 +83,12 @@ export const getSpendingByCategory = (
   const currentMonth = new Date().getMonth()
   const currentYear = new Date().getFullYear()
 
-  const expenseCategories = categories.filter((c) => c.type === 'expense')
+  const expenseCategories = categories?.filter((c) => c.type === 'expense')
 
   const spending = expenseCategories
-    .map((category) => {
+    ?.map((category) => {
       const amount = transactions
-        .filter((t) => {
+        ?.filter((t) => {
           const date = new Date(t.date)
           return (
             t.category_id === category.id &&
@@ -104,9 +104,9 @@ export const getSpendingByCategory = (
     .filter((item) => item.amount > 0)
     .sort((a, b) => b.amount - a.amount)
 
-  const total = spending.reduce((sum, item) => sum + item.amount, 0)
+  const total = spending?.reduce((sum, item) => sum + item.amount, 0)
 
-  return spending.map((item) => ({
+  return spending?.map((item) => ({
     ...item,
     percentage: (item.amount / total) * 100
   }))

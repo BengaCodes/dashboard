@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useMemo } from 'react'
 import {
   calculateMetrics,
   getSpendingByCategory,
@@ -9,126 +8,85 @@ import MetricCard from '../metricCard/MetricCard'
 import TransactionsList from '../transactions/TransactionsList'
 import SpendingChart from '../spendingChart/SpendingChart'
 import BudgetOverview from '../budgetOverview/BudgetOverview'
-import type {
-  BudgetWithCategory,
-  Category,
-  TransactionWithCategory
+import useFetchQuery from '../../hooks/api/useFetchQuery'
+import {
+  budgetQueries,
+  categoryQueries,
+  transactionQueries
+} from '../../utils/dataQuery'
+import Loading from '../common/Loading'
+import {
+  type BudgetWithCategory,
+  type Category,
+  type TransactionWithCategory
 } from '../../utils/database.types'
-import supabase from '../../utils/supabase'
 
 const Dashboard = () => {
-  const [categories, setCategories] = useState<Category[]>([])
-  const [transactions, setTransactions] = useState<TransactionWithCategory[]>(
-    []
-  )
-  const [budgets, setBudgets] = useState<BudgetWithCategory[]>([])
+  const { data: transactions, isLoading: transactionsLoading } = useFetchQuery<
+    TransactionWithCategory[]
+  >({
+    key: transactionQueries.all(),
+    queryFn: transactionQueries.getTransactions
+  })
 
-  const [loading, setLoading] = useState(false)
+  const { data: categories, isLoading: categoriesLoading } = useFetchQuery<
+    Category[]
+  >({
+    key: categoryQueries.all(),
+    queryFn: categoryQueries.getCategories
+  })
 
-  useEffect(() => {
-    loadDashboardData()
-  }, [])
-
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true)
-      const [transactionsRes, categoriesRes, budgetRes] = await Promise.all([
-        supabase
-          .from('transactions')
-          .select('*, categories(*)')
-          .order('date', { ascending: true })
-          .limit(15),
-        supabase.from('categories').select('*'),
-        supabase.from('budgets').select('*, categories(*)')
-      ])
-
-      if (transactionsRes.error) throw transactionsRes.error
-      if (categoriesRes.error) throw categoriesRes.error
-      if (budgetRes.error) throw budgetRes.error
-
-      setTransactions(transactionsRes.data as TransactionWithCategory[])
-      setCategories(categoriesRes.data)
-
-      const currentMonth = new Date().getMonth()
-      const currentYear = new Date().getFullYear()
-
-      const budgetWithSpent = await Promise.all(
-        (budgetRes.data as any[]).map(async (budget) => {
-          const { data: spent } = await supabase
-            .from('transactions')
-            .select('amount')
-            .eq('category_id', budget.category_id)
-            .eq('type', 'expense')
-            .gte(
-              'date',
-              new Date(currentYear, currentMonth, 1).toISOString().split('T')[0]
-            )
-            .lte(
-              'date',
-              new Date(currentYear, currentMonth + 1, 0)
-                .toISOString()
-                .split('T')[0]
-            )
-
-          const totalSpent =
-            spent?.reduce((sum, s) => sum + Number(s.amount), 0) || 0
-
-          return {
-            ...budget,
-            spent: totalSpent
-          }
-        })
-      )
-
-      setBudgets(budgetWithSpent)
-    } catch (error) {
-      console.error('Error loading dashboard data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { data: budgetWithSpent, isLoading: budgetsLoading } = useFetchQuery<
+    BudgetWithCategory[]
+  >({
+    key: budgetQueries.all(),
+    queryFn: budgetQueries.getBudgetWithSpent
+  })
 
   const metrics = useMemo(
-    () => calculateMetrics(transactions, budgets),
-    [transactions, budgets]
+    () => calculateMetrics(transactions, budgetWithSpent),
+    [transactions, budgetWithSpent]
   )
 
   const spendingData = useMemo(
-    () => getSpendingByCategory(categories, transactions),
+    () =>
+      getSpendingByCategory(
+        categories as Category[],
+        transactions as TransactionWithCategory[]
+      ),
     [categories, transactions]
   )
 
   const metricList = useMemo(() => metricsList(metrics), [metrics])
 
-  if (loading) return <div>loading...</div>
+  if (transactionsLoading || budgetsLoading || categoriesLoading)
+    return <Loading />
 
   return (
-    <div className='min-h-screen bg-linear-to-br from-slate-50 to-slate-100'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-        <div className='mb-8'>
-          <h1 className='text-3xl font-bold text-gray-900 mb-2'>
-            Financial Dashboard
-          </h1>
-          <p className='text-gray-600'>
-            Track your income, expenses, and budgets
-          </p>
+    <>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
+        {metricList.map((m, i: number) => (
+          <MetricCard {...m} key={m.title + i} />
+        ))}
+      </div>
+      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8'>
+        <div className='lg:col-span-2'>
+          <Suspense fallback={'Loading Transactions'}>
+            <TransactionsList
+              transactions={transactions as TransactionWithCategory[]}
+            />
+          </Suspense>
         </div>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
-          {metricList.map((m, i: number) => (
-            <MetricCard {...m} key={m.title + i} />
-          ))}
-        </div>
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8'>
-          <div className='lg:col-span-2'>
-            <TransactionsList transactions={transactions} />
-          </div>
-          <div className='space-y-6'>
+        <div className='space-y-6'>
+          <Suspense fallback={'Loading spend chart'}>
             <SpendingChart data={spendingData} />
-            <BudgetOverview budgets={budgets} />
-          </div>
+          </Suspense>
+          <Suspense fallback={'Loading budgets'}>
+            <BudgetOverview budgets={budgetWithSpent as BudgetWithCategory[]} />
+          </Suspense>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

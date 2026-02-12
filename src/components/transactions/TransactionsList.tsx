@@ -1,4 +1,7 @@
+import { useQueryClient } from '@tanstack/react-query'
+import useMutationQuery from '../../hooks/api/useMutationQuery'
 import type { TransactionWithCategory } from '../../utils/database.types'
+import { transactionQueries } from '../../utils/dataQuery'
 import TransactionCell from './TransactionCells'
 
 const TransactionsList = ({
@@ -6,6 +9,21 @@ const TransactionsList = ({
 }: {
   transactions: TransactionWithCategory[]
 }) => {
+  const queryClient = useQueryClient()
+
+  const { mutation } = useMutationQuery({
+    mutationFn: transactionQueries.deleteTransaction,
+    options: {
+      onSuccess: async () =>
+        await queryClient.invalidateQueries({
+          queryKey: transactionQueries.all()
+        }),
+      onError: (error) => {
+        console.log({ error })
+      }
+    }
+  })
+
   return (
     <div className='bg-white rounded-xl shadow-sm border border-gray-100'>
       <div className='p-6 border-b border-gray-100'>
@@ -20,7 +38,11 @@ const TransactionsList = ({
           </div>
         ) : (
           transactions.map((tr: TransactionWithCategory) => (
-            <TransactionCell key={tr.id} transaction={tr} />
+            <TransactionCell
+              key={tr.id}
+              transaction={tr}
+              handleDelete={() => mutation.mutate(tr.id)}
+            />
           ))
         )}
       </div>
