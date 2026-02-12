@@ -1,6 +1,7 @@
 import type {
   BudgetWithCategory,
   Category,
+  Transaction,
   TransactionWithCategory
 } from './database.types'
 import supabase from './supabase'
@@ -29,6 +30,15 @@ export const transactionQueries = {
   deleteTransaction: async (id: number) => {
     const res = await supabase.from('transactions').delete().eq('id', id)
     if (res.error) throw res.error
+    return res
+  },
+
+  addTransaction: async (
+    transaction: Omit<Transaction, 'id' | 'created_at'>
+  ) => {
+    const res = await supabase.from('transactions').insert(transaction)
+    if (res.error) throw res.error
+
     return res
   }
 }

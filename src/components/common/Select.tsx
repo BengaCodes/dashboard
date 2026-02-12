@@ -21,7 +21,9 @@ const Select = ({ label, options, ...props }: SelectProps) => {
           {...props}
         >
           {options.map((o) => (
-            <option key={o}>{o}</option>
+            <option value={o.toLowerCase()} key={o}>
+              {o}
+            </option>
           ))}
         </select>
         <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>

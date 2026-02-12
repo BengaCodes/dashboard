@@ -7,7 +7,6 @@ import supabase from './supabase'
 
 export async function seedData() {
   try {
-    // Insert sample categories
     const categoryData: CategoryInsert[] = [
       {
         name: 'Food & Dining',
@@ -33,6 +32,84 @@ export async function seedData() {
         type: 'expense',
         color: '#9B59B6',
         icon: 'ShoppingBag'
+      },
+      {
+        name: 'Groceries',
+        type: 'expense',
+        color: '#F39C12',
+        icon: 'ShoppingCart'
+      },
+      {
+        name: 'Healthcare',
+        type: 'expense',
+        color: '#E74C3C',
+        icon: 'Heart'
+      },
+      {
+        name: 'Utilities',
+        type: 'expense',
+        color: '#3498DB',
+        icon: 'Zap'
+      },
+      {
+        name: 'Housing',
+        type: 'expense',
+        color: '#34495E',
+        icon: 'Home'
+      },
+      {
+        name: 'Education',
+        type: 'expense',
+        color: '#16A085',
+        icon: 'BookOpen'
+      },
+      {
+        name: 'Insurance',
+        type: 'expense',
+        color: '#8E44AD',
+        icon: 'Shield'
+      },
+      {
+        name: 'Travel',
+        type: 'expense',
+        color: '#E67E22',
+        icon: 'Plane'
+      },
+      {
+        name: 'Fitness',
+        type: 'expense',
+        color: '#27AE60',
+        icon: 'Activity'
+      },
+      {
+        name: 'Personal Care',
+        type: 'expense',
+        color: '#F39C12',
+        icon: 'Smile'
+      },
+      {
+        name: 'Subscriptions',
+        type: 'expense',
+        color: '#1ABC9C',
+        icon: 'Repeat'
+      },
+      {
+        name: 'Gifts & Donations',
+        type: 'expense',
+        color: '#E91E63',
+        icon: 'Gift'
+      },
+      {
+        name: 'Freelance Income',
+        type: 'income',
+        color: '#2ECC71',
+        icon: 'Briefcase'
+      },
+      {
+        name: 'Investment Returns',
+        type: 'income',
+        color: '#27AE60',
+        icon: 'TrendingUp'
       }
     ]
 

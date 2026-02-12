@@ -3,18 +3,40 @@ import type { Category, Transaction } from '../../utils/database.types'
 import Input from '../common/Input'
 import Select from '../common/Select'
 import { useMemo } from 'react'
+import useMutationQuery from '../../hooks/api/useMutationQuery'
+import { transactionQueries } from '../../utils/dataQuery'
+import { useQueryClient } from '@tanstack/react-query'
 
 type TransactionFormProps = {
   categories: Category[]
+  handleModalClose: () => void
 }
 
-const TransactionForm = ({ categories }: TransactionFormProps) => {
+const TransactionForm = ({
+  categories,
+  handleModalClose
+}: TransactionFormProps) => {
+  const queryClient = useQueryClient()
+
   const { value: description, handleChange: descriptionChange } = useInput('')
   const { value: amount, handleChange: amountChange } = useInput('')
   const { value: date, handleChange: dateChange } = useInput('')
   const { value: type, handleChange: typeChange } = useInput('expense')
   const { value: category, handleChange: categoryChange } =
     useInput('Select Category')
+
+  const { mutation: addMutation } = useMutationQuery({
+    mutationFn: transactionQueries.addTransaction,
+    options: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
+        handleModalClose()
+      },
+      onError: (error) => {
+        console.log({ error })
+      }
+    }
+  })
 
   const isValidInputs = useMemo(() => {
     return (
@@ -32,7 +54,9 @@ const TransactionForm = ({ categories }: TransactionFormProps) => {
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const categoryId = categories?.find((c) => c.name === category)?.id
+    const categoryId = categories?.find(
+      (c) => c.name.toLowerCase() === category
+    )?.id
     const transaction: Omit<Transaction, 'id' | 'created_at'> = {
       description: String(description),
       amount: Number(amount),
@@ -42,7 +66,7 @@ const TransactionForm = ({ categories }: TransactionFormProps) => {
     }
 
     if (isValidInputs) {
-      console.log(transaction)
+      addMutation.mutate(transaction)
     } else {
       console.error('invalid inputs')
     }

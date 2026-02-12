@@ -23,7 +23,7 @@ const TransactionsList = ({
 
   const categories = queryClient.getQueryData<Category[]>(categoryQueries.all())
 
-  const { mutation } = useMutationQuery({
+  const { mutation: deleteMutation } = useMutationQuery({
     mutationFn: transactionQueries.deleteTransaction,
     options: {
       onSuccess: async () =>
@@ -59,7 +59,7 @@ const TransactionsList = ({
               <TransactionCell
                 key={tr.id}
                 transaction={tr}
-                handleDelete={() => mutation.mutate(tr.id)}
+                handleDelete={() => deleteMutation.mutate(tr.id)}
               />
             ))
           )}
@@ -70,7 +70,10 @@ const TransactionsList = ({
         isOpen={openModal}
         onClose={() => setOpenModal(false)}
       >
-        <TransactionForm categories={categories ?? []} />
+        <TransactionForm
+          handleModalClose={() => setOpenModal(false)}
+          categories={categories ?? []}
+        />
       </Modal>
     </>
   )
