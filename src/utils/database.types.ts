@@ -22,7 +22,7 @@ export type Transaction = {
   description: string
   date: string
   type: 'income' | 'expense'
-  category_id: number
+  category_id: number | null
 }
 
 // Extended types with relations
