@@ -12,7 +12,7 @@ export type Budget = {
   created_at: string
   amount: number
   period: string
-  category_id: number
+  category_id: number | null
 }
 
 export type Transaction = {

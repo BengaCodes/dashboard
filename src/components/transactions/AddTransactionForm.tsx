@@ -4,19 +4,17 @@ import Input from '../common/Input'
 import Select from '../common/Select'
 import { useMemo } from 'react'
 import useMutationQuery from '../../hooks/api/useMutationQuery'
-import { transactionQueries } from '../../utils/dataQuery'
+import { categoryQueries, transactionQueries } from '../../utils/dataQuery'
 import { useQueryClient } from '@tanstack/react-query'
 
 type TransactionFormProps = {
-  categories: Category[]
   handleModalClose: () => void
 }
 
-const TransactionForm = ({
-  categories,
-  handleModalClose
-}: TransactionFormProps) => {
+const TransactionForm = ({ handleModalClose }: TransactionFormProps) => {
   const queryClient = useQueryClient()
+
+  const categories = queryClient.getQueryData<Category[]>(categoryQueries.all())
 
   const { value: description, handleChange: descriptionChange } = useInput('')
   const { value: amount, handleChange: amountChange } = useInput('')
@@ -24,6 +22,8 @@ const TransactionForm = ({
   const { value: type, handleChange: typeChange } = useInput('expense')
   const { value: category, handleChange: categoryChange } =
     useInput('Select Category')
+
+  const today = new Date().toISOString().split('T')[0]
 
   const { mutation: addMutation } = useMutationQuery({
     mutationFn: transactionQueries.addTransaction,
@@ -42,14 +42,16 @@ const TransactionForm = ({
     return (
       String(description || '').trim() &&
       String(amount || '').trim() &&
+      String(date) <= today &&
       String(date || '').trim() &&
       String(category || '').trim() &&
       category !== 'Select Category'
     )
-  }, [description, amount, date, category])
+  }, [description, amount, date, category, today])
 
   const categoriesOptions = useMemo(() => {
-    return categories.map((c) => c.name)
+    if (!categories) return []
+    return categories?.map((c) => c.name)
   }, [categories])
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -108,6 +110,7 @@ const TransactionForm = ({
             value={date}
             onChange={dateChange}
             required
+            max={today}
           />
         </div>
       </div>

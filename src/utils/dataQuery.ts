@@ -1,4 +1,5 @@
 import type {
+  Budget,
   BudgetWithCategory,
   Category,
   Transaction,
@@ -48,7 +49,10 @@ export const categoryQueries = {
   list: () => [...categoryQueries.all(), 'list'],
 
   getCategories: async () => {
-    const res = await supabase.from('categories').select('*')
+    const res = await supabase
+      .from('categories')
+      .select('*')
+      .order('name', { ascending: true })
     if (res.error) throw res.error
     return res.data as Category[]
   }
@@ -101,5 +105,13 @@ export const budgetQueries = {
     )
 
     return budgetWithSpent as BudgetWithCategory[]
+  },
+
+  addBudget: async (budget: Omit<Budget, 'id' | 'created_at'>) => {
+    const res = await supabase.from('budgets').insert(budget)
+
+    if (res.error) throw res.error
+
+    return res
   }
 }
