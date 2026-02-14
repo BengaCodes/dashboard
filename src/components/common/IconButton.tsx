@@ -3,7 +3,7 @@ import type { LucideIcon } from 'lucide-react'
 
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: LucideIcon
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'emerald'
   size?: 'sm' | 'md' | 'lg'
   iconClassName?: string
   ref?: React.Ref<HTMLButtonElement>
@@ -26,7 +26,9 @@ const IconButton = ({
     secondary:
       'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500',
     ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500'
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+    emerald:
+      'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500'
   }
 
   const sizes = {

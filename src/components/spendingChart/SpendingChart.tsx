@@ -15,12 +15,12 @@ const SpendingChart = ({ data }: SpendingChartProps) => {
   const total = data.reduce((acc, cur) => acc + cur.amount, 0)
 
   return (
-    <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-6'>
+    <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-4 max-h-4/5'>
       <h2 className='text-lg font-semibold text-gray-900 mb-6'>
         Spending by Category
       </h2>
 
-      <div className='space-y-4'>
+      <div className='space-y-4 max-h-96 p-4 overflow-auto'>
         {data.length === 0 ? (
           <div className='text-center text-gray-500 py-8'>
             No spending data available
@@ -31,7 +31,7 @@ const SpendingChart = ({ data }: SpendingChartProps) => {
           ))
         )}
         {data.length > 0 && (
-          <div className='mt-6 pt-6 border-t border-gray-100'>
+          <div className='mt-6 pt-6 border-t border-gray-100 px-4'>
             <div className='flex items-center justify-between'>
               <span className='text-sm font-medium text-gray-700'>
                 Total Spending

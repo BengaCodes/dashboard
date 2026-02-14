@@ -35,7 +35,9 @@ export const transactionQueries = {
   },
 
   addTransaction: async (
-    transaction: Omit<Transaction, 'id' | 'created_at'>
+    transaction:
+      | Omit<Transaction, 'id' | 'created_at'>
+      | Omit<Transaction, 'id' | 'created_at'>[]
   ) => {
     const res = await supabase.from('transactions').insert(transaction)
     if (res.error) throw res.error

@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from 'react'
+import { useMemo } from 'react'
 import {
   calculateMetrics,
   getSpendingByCategory,
@@ -71,19 +71,14 @@ const Dashboard = () => {
       </div>
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8'>
         <div className='lg:col-span-2'>
-          <Suspense fallback={'Loading Transactions'}>
-            <TransactionsList
-              transactions={transactions as TransactionWithCategory[]}
-            />
-          </Suspense>
+          <TransactionsList
+            transactions={transactions as TransactionWithCategory[]}
+          />
         </div>
-        <div className='space-y-6'>
-          <Suspense fallback={'Loading spend chart'}>
-            <SpendingChart data={spendingData} />
-          </Suspense>
-          <Suspense fallback={'Loading budgets'}>
-            <BudgetOverview budgets={budgetWithSpent as BudgetWithCategory[]} />
-          </Suspense>
+        <div className='space-y-6 max-h-screen'>
+          <SpendingChart data={spendingData} />
+
+          <BudgetOverview budgets={budgetWithSpent as BudgetWithCategory[]} />
         </div>
       </div>
     </>
