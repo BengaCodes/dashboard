@@ -6,6 +6,7 @@ import type { Budget, Category } from '../../utils/database.types'
 import useMutationQuery from '../../hooks/api/useMutationQuery'
 import { budgetQueries, categoryQueries } from '../../utils/dataQuery'
 import { useQueryClient } from '@tanstack/react-query'
+import Button from '../common/Button'
 
 type AddBudgetFormType = {
   handleModalClose: () => void
@@ -107,7 +108,7 @@ const AddBudgetForm = ({ handleModalClose }: AddBudgetFormType) => {
         </div>
       </div>
       <div className='flex justify-end'>
-        <button className='bg-green-500'>Submit</button>
+        <Button type='submit'>Add Budget</Button>
       </div>
     </form>
   )

@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import useMutationQuery from '../../hooks/api/useMutationQuery'
 import { categoryQueries, transactionQueries } from '../../utils/dataQuery'
 import { useQueryClient } from '@tanstack/react-query'
+import Button from '../common/Button'
 
 type TransactionFormProps = {
   handleModalClose: () => void
@@ -133,7 +134,7 @@ const TransactionForm = ({ handleModalClose }: TransactionFormProps) => {
         </div>
       </div>
       <div className='flex justify-end'>
-        <button className='bg-green-500'>Submit</button>
+        <Button className=' cursor-pointer'>Add Transaction</Button>
       </div>
     </form>
   )

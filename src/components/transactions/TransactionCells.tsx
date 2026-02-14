@@ -5,6 +5,7 @@ import type { TransactionWithCategory } from '../../utils/database.types'
 import IconButton from '../common/IconButton'
 import Modal from '../modal/Modal'
 import { useState } from 'react'
+import Button from '../common/Button'
 
 type TransactionCellProps = {
   transaction: TransactionWithCategory
@@ -70,10 +71,16 @@ const TransactionCell = ({
         onClose={() => setOpenDeleteModal(false)}
       >
         <div className='w-3/4'>
-          <p>Are you sure you want to delete transaction?</p>
-          <div className='flex justify-end'>
-            <button onClick={() => setOpenDeleteModal(false)}>Cancel</button>
-            <button onClick={handleDelete}>Delete</button>
+          <p className=' mb-4'>Are you sure you want to delete transaction?</p>
+          <div className='flex justify-end gap-2'>
+            <Button
+              onClick={() => setOpenDeleteModal(false)}
+              className=' cursor-pointer'
+              variant='danger'
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleDelete}>Delete</Button>
           </div>
         </div>
       </Modal>

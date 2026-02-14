@@ -22,6 +22,7 @@ const BudgetOverview = ({ budgets }: { budgets: BudgetWithCategory[] }) => {
               size='sm'
               icon={Plus}
               onClick={() => setOpenModal(true)}
+              className=' cursor-pointer'
             />
           </div>
         </div>
