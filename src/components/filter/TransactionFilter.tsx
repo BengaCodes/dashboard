@@ -11,15 +11,28 @@ const TransactionFilter = ({
   selectedDate,
   onChangeDate
 }: TransactionFilterProps) => {
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 3 }, (_, i) => currentYear - 2 + i)
+
   const handlePrevMonth = () => {
     const newDate = new Date(selectedDate)
-    newDate.setMonth(newDate.getMonth() - 1)
+    if (selectedDate.getMonth() === 0) {
+      newDate.setMonth(11)
+      newDate.setFullYear(selectedDate.getFullYear() - 1)
+    } else {
+      newDate.setMonth(newDate.getMonth() - 1)
+    }
     onChangeDate(newDate)
   }
 
   const handleNextMonth = () => {
     const newDate = new Date(selectedDate)
-    newDate.setMonth(newDate.getMonth() + 1)
+    if (selectedDate.getMonth() === 11) {
+      newDate.setMonth(0)
+      newDate.setFullYear(selectedDate.getFullYear() + 1)
+    } else {
+      newDate.setMonth(newDate.getMonth() + 1)
+    }
     onChangeDate(newDate)
   }
 
@@ -30,22 +43,26 @@ const TransactionFilter = ({
   }
 
   const handleYearChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    console.log(e.target.value)
     const newDate = new Date(selectedDate)
     newDate.setFullYear(+e.target.value)
     onChangeDate(newDate)
   }
 
-  const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: 3 }, (_, i) => currentYear - 2 + i)
+  const disableNextButton =
+    selectedDate.getMonth() === 11 &&
+    selectedDate.getFullYear() === years[years.length - 1]
+
+  const disablePrevButton =
+    selectedDate.getMonth() === 0 && selectedDate.getFullYear() === years[0]
 
   return (
     <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-6'>
       <div className='flex items-center justify-between gap-4'>
         <button
           onClick={handlePrevMonth}
-          className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
+          className='p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent'
           aria-label='Previous month'
+          disabled={disablePrevButton}
         >
           <ChevronLeft className='w-5 h-5 text-gray-600' />
         </button>
@@ -78,8 +95,9 @@ const TransactionFilter = ({
 
         <button
           onClick={handleNextMonth}
-          className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
+          className='p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent'
           aria-label='Next month'
+          disabled={disableNextButton}
         >
           <ChevronRight className='w-5 h-5 text-gray-600' />
         </button>
