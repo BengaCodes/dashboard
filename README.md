@@ -46,6 +46,29 @@ The application is currently in active development, with core functionality impl
 
 ## Documentation Template for New Features
 
+### Feature: Row Level Security (RLS) Policies
+
+#### Description
+Enabled Row Level Security (RLS) policies on all database tables to ensure only authenticated users can perform CRUD operations on their own data.
+
+#### Implementation Details
+- **Components**: N/A
+- **Database Changes**: Added `user_id` column to all tables; enabled RLS policies for CREATE, READ, UPDATE, and DELETE operations
+- **API Endpoints**: N/A
+- **Dependencies**: N/A
+
+#### Usage
+RLS policies enforce data isolation at the database level, automatically restricting users to their own records.
+
+#### Technical Notes
+- All tables now include a `user_id` column to identify record ownership
+- Policies are enforced server-side by Supabase
+
+#### Related Issues/PRs
+Links to relevant issues or pull requests.
+
+---
+
 ### Feature: [Bulk Upload]
 
 #### Description
@@ -68,27 +91,23 @@ Links to relevant issues or pull requests.
 
 ---
 
-### Example Entry
-
-### Feature: Monthly Budget Overview
+### Feature: Transaction Filters (Month/Year, Income/Expense)
 
 #### Description
-Added a dashboard widget that displays total budget vs. actual spending for the current month with visual progress indicators.
+Added filters to view transactions by specific month and year, and to quickly filter recent transactions by income or expense.
 
 #### Implementation Details
-- **Components**: `BudgetOverview.tsx`, `ProgressBar.tsx`
-- **Database Changes**: Added `monthly_budget` column to `budgets` table
-- **API Endpoints**: None (uses existing budget queries)
+- **Components**: `TransactionFilters.tsx`, `RecentTransactions.tsx`
+- **Database Changes**: None
+- **API Endpoints**: None (uses existing transaction queries)
 - **Dependencies**: None
 
 #### Usage
-Users can view their monthly budget status on the main dashboard. The widget updates in real-time as transactions are added.
+Users can select a month and year to narrow the transaction list, or toggle recent transactions by income or expense.
 
 #### Technical Notes
-- Uses Supabase Realtime for automatic updates
-- Calculations are performed client-side for better performance
-- Defaults to current month if no budget period is set
+- Filters are applied client-side for responsiveness
+- Defaults to current month/year when no filter is set
 
 #### Related Issues/PRs
-- Issue #42: Budget tracking feature
-- PR #45: Implement monthly budget overview
+Links to relevant issues or pull requests.
