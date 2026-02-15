@@ -1,25 +1,28 @@
 import type { SelectHTMLAttributes } from 'react'
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
-  label: string
+  label?: string
   options: string[]
+  classes?: string
 }
 
-const Select = ({ label, options, ...props }: SelectProps) => {
+const Select = ({ label, options, classes, ...props }: SelectProps) => {
+  const defaultClass = !classes
+    ? 'block appearance-none w-full bg-gray-200 border border-blue-600 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
+    : classes
+
   return (
     <>
-      <label
-        className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'
-        htmlFor={label}
-      >
-        {label}
-      </label>
-      <div className='relative'>
-        <select
-          className='block appearance-none w-full bg-gray-200 border border-blue-600 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-          id={label}
-          {...props}
+      {label && (
+        <label
+          className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'
+          htmlFor={label}
         >
+          {label}
+        </label>
+      )}
+      <div className='relative'>
+        <select className={defaultClass} id={label} {...props}>
           {options.map((o) => (
             <option value={o.toLowerCase()} key={o}>
               {o}

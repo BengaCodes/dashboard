@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   calculateMetrics,
   getSpendingByCategory,
@@ -20,8 +20,14 @@ import {
   type Category,
   type TransactionWithCategory
 } from '../../utils/database.types'
+import TransactionFilter from '../filter/TransactionFilter'
 
 const Dashboard = () => {
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date()
+    return new Date(today.getFullYear(), today.getMonth())
+  })
+
   const { data: transactions, isLoading: transactionsLoading } = useFetchQuery<
     TransactionWithCategory[]
   >({
@@ -44,26 +50,44 @@ const Dashboard = () => {
   })
 
   const metrics = useMemo(
-    () => calculateMetrics(transactions, budgetWithSpent),
-    [transactions, budgetWithSpent]
+    () => calculateMetrics(transactions, budgetWithSpent, selectedDate),
+    [transactions, budgetWithSpent, selectedDate]
   )
 
   const spendingData = useMemo(
     () =>
       getSpendingByCategory(
         categories as Category[],
-        transactions as TransactionWithCategory[]
+        transactions as TransactionWithCategory[],
+        selectedDate
       ),
-    [categories, transactions]
+    [categories, transactions, selectedDate]
   )
 
   const metricList = useMemo(() => metricsList(metrics), [metrics])
+
+  const filteredTransactions: TransactionWithCategory[] = useMemo(() => {
+    if (!transactions || !Array.isArray(transactions)) return []
+    return transactions.filter((tr) => {
+      const trDate = new Date(tr.date)
+      return (
+        trDate.getMonth() === selectedDate.getMonth() &&
+        trDate.getFullYear() === selectedDate.getFullYear()
+      )
+    })
+  }, [transactions, selectedDate])
 
   if (transactionsLoading || budgetsLoading || categoriesLoading)
     return <Loading />
 
   return (
     <>
+      <div className='mb-8'>
+        <TransactionFilter
+          selectedDate={selectedDate}
+          onChangeDate={setSelectedDate}
+        />
+      </div>
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
         {metricList.map((m, i: number) => (
           <MetricCard {...m} key={m.title + i} />
@@ -71,9 +95,7 @@ const Dashboard = () => {
       </div>
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8'>
         <div className='lg:col-span-2'>
-          <TransactionsList
-            transactions={transactions as TransactionWithCategory[]}
-          />
+          <TransactionsList transactions={filteredTransactions} />
         </div>
         <div className='space-y-6 max-h-screen'>
           <SpendingChart data={spendingData} />

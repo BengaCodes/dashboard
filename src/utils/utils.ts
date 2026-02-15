@@ -47,9 +47,13 @@ export const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
-export const calculateMetrics = (transactions: any, budgets: any) => {
-  const currentMonth = new Date().getMonth()
-  const currentYear = new Date().getFullYear()
+export const calculateMetrics = (
+  transactions: any,
+  budgets: any,
+  date: Date
+) => {
+  const currentMonth = new Date(date).getMonth()
+  const currentYear = new Date(date).getFullYear()
 
   const currentMonthTransactions = transactions?.filter((t: any) => {
     const date = new Date(t.date)
@@ -78,10 +82,11 @@ export const calculateMetrics = (transactions: any, budgets: any) => {
 
 export const getSpendingByCategory = (
   categories: Category[],
-  transactions: TransactionWithCategory[]
+  transactions: TransactionWithCategory[],
+  date: Date
 ) => {
-  const currentMonth = new Date().getMonth()
-  const currentYear = new Date().getFullYear()
+  const currentMonth = new Date(date).getMonth()
+  const currentYear = new Date(date).getFullYear()
 
   const expenseCategories = categories?.filter((c) => c.type === 'expense')
 
@@ -148,3 +153,18 @@ export const metricsList = (metrics: any) => {
     }
   ]
 }
+
+export const months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December'
+]

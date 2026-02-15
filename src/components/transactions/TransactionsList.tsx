@@ -5,7 +5,7 @@ import { transactionQueries } from '../../utils/dataQuery'
 import TransactionCell from './TransactionCells'
 import IconButton from '../common/IconButton'
 import { Plus, Upload } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Modal from '../modal/Modal'
 import TransactionForm from './AddTransactionForm'
 import UploadTransactionsForm from './UploadTransactionsForm'
@@ -17,6 +17,12 @@ const TransactionsList = ({
 }) => {
   const [openModal, setOpenModal] = useState(false)
   const [openBulkUploadModal, setOpenBulkUploadModal] = useState(false)
+  const [filterType, setFilterType] = useState('All')
+
+  const filteredTransactions = useMemo(() => {
+    if (filterType === 'All') return transactions
+    return transactions.filter((x) => x.type === filterType.toLowerCase())
+  }, [transactions, filterType])
 
   const queryClient = useQueryClient()
 
@@ -41,9 +47,22 @@ const TransactionsList = ({
     <>
       <div className='bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden'>
         <div className='p-4 border-b border-gray-100 flex justify-between'>
-          <h2 className='text-lg font-semibold text-gray-900'>
-            Recent Transactions
-          </h2>
+          <div className='flex gap-4 justify-center items-center'>
+            <h2 className='text-lg font-semibold text-gray-900'>
+              Recent Transactions
+            </h2>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className='px-3 py-2 rounded-lg border border-gray-200 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500'
+            >
+              {['All', 'Income', 'Expense'].map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className='flex justify-between gap-4'>
             <IconButton
               variant='emerald'
@@ -54,12 +73,12 @@ const TransactionsList = ({
           </div>
         </div>
         <div className='divide-y divide-gray-100 max-h-screen overflow-y-auto'>
-          {transactions?.length === 0 ? (
+          {filteredTransactions?.length === 0 ? (
             <div className='p-8 text-center text-gray-500'>
               No transactions yet
             </div>
           ) : (
-            transactions.map((tr: TransactionWithCategory) => (
+            filteredTransactions.map((tr: TransactionWithCategory) => (
               <TransactionCell
                 key={tr.id}
                 transaction={tr}
