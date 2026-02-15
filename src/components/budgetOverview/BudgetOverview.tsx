@@ -12,7 +12,7 @@ const BudgetOverview = ({ budgets }: { budgets: BudgetWithCategory[] }) => {
 
   return (
     <>
-      <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-6'>
+      <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-6 max-h-96'>
         <div className=' mb-6 border-b border-gray-100 flex justify-between align-middle'>
           <h2 className='text-lg font-semibold text-gray-900 mb-6'>
             Budget Overview
@@ -26,7 +26,7 @@ const BudgetOverview = ({ budgets }: { budgets: BudgetWithCategory[] }) => {
             />
           </div>
         </div>
-        <div className='space-y-5'>
+        <div className='space-y-5 max-h-62 overflow-auto p-4'>
           {budgets.length === 0 ? (
             <div className='text-center text-gray-500 py-8'>No budgets set</div>
           ) : (
