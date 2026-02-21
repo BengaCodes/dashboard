@@ -6,16 +6,21 @@ import AuthPage from './components/auth/AuthPage'
 const queryClient = new QueryClient()
 
 const App = () => {
+  const activeSession = JSON.parse(
+    localStorage.getItem('sb-aahhzpfnqjkkssucoddo-auth-token')!
+  )
+
   const { user } = useAuth()
+
+  if (!user && !activeSession) {
+    return <AuthPage />
+  }
+
   return (
     <>
-      {user ? (
-        <QueryClientProvider client={queryClient}>
-          <Dashboard />
-        </QueryClientProvider>
-      ) : (
-        <AuthPage />
-      )}
+      <QueryClientProvider client={queryClient}>
+        <Dashboard />
+      </QueryClientProvider>
     </>
   )
 }

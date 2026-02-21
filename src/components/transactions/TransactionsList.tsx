@@ -11,9 +11,11 @@ import TransactionForm from './AddTransactionForm'
 import UploadTransactionsForm from './UploadTransactionsForm'
 
 const TransactionsList = ({
-  transactions
+  transactions,
+  selectedDate
 }: {
   transactions: TransactionWithCategory[]
+  selectedDate: Date
 }) => {
   const [openModal, setOpenModal] = useState(false)
   const [openBulkUploadModal, setOpenBulkUploadModal] = useState(false)
@@ -97,7 +99,10 @@ const TransactionsList = ({
         isOpen={openModal}
         onClose={() => setOpenModal(false)}
       >
-        <TransactionForm handleModalClose={() => setOpenModal(false)} />
+        <TransactionForm
+          selectedDate={selectedDate}
+          handleModalClose={() => setOpenModal(false)}
+        />
       </Modal>
       <Modal
         title='Upload Transactions'

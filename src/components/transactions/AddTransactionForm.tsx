@@ -14,16 +14,28 @@ import Button from '../common/Button'
 
 type TransactionFormProps = {
   handleModalClose: () => void
+  selectedDate: Date
 }
 
-const TransactionForm = ({ handleModalClose }: TransactionFormProps) => {
+const TransactionForm = ({
+  handleModalClose,
+  selectedDate
+}: TransactionFormProps) => {
   const queryClient = useQueryClient()
 
   const categories = queryClient.getQueryData<Category[]>(categoryQueries.all())
 
+  const currentMonthDate = new Date(
+    selectedDate.getFullYear(),
+    selectedDate.getMonth(),
+    1
+  )
+    .toISOString()
+    .split('T')[0]
+
   const { value: description, handleChange: descriptionChange } = useInput('')
   const { value: amount, handleChange: amountChange } = useInput('')
-  const { value: date, handleChange: dateChange } = useInput('')
+  const { value: date, handleChange: dateChange } = useInput(currentMonthDate)
   const { value: type, handleChange: typeChange } = useInput('expense')
   const { value: category, handleChange: categoryChange } =
     useInput('Select Category')
