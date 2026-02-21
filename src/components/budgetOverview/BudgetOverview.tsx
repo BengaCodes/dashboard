@@ -7,7 +7,11 @@ import Modal from '../modal/Modal'
 import { useState } from 'react'
 import AddBudgetForm from './AddBudgetForm'
 
-const BudgetOverview = ({ budgets }: { budgets: BudgetWithCategory[] }) => {
+type BudgetsOverviewType = {
+  budgets: BudgetWithCategory[]
+}
+
+const BudgetOverview = ({ budgets }: BudgetsOverviewType) => {
   const [openModal, setOpenModal] = useState(false)
 
   return (

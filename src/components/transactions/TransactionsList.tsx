@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import useMutationQuery from '../../hooks/api/useMutationQuery'
 import type { TransactionWithCategory } from '../../utils/database.types'
-import { transactionQueries } from '../../utils/dataQuery'
+import { budgetQueries, transactionQueries } from '../../utils/dataQuery'
 import TransactionCell from './TransactionCells'
 import IconButton from '../common/IconButton'
 import { Plus, Upload } from 'lucide-react'
@@ -29,10 +29,14 @@ const TransactionsList = ({
   const { mutation: deleteMutation } = useMutationQuery({
     mutationFn: transactionQueries.deleteTransaction,
     options: {
-      onSuccess: async () =>
+      onSuccess: async () => {
         await queryClient.invalidateQueries({
           queryKey: transactionQueries.all()
-        }),
+        })
+        await queryClient.invalidateQueries({
+          queryKey: budgetQueries.all()
+        })
+      },
       onError: (error) => {
         console.log({ error })
       }

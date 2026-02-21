@@ -4,7 +4,11 @@ import Input from '../common/Input'
 import Select from '../common/Select'
 import { useMemo } from 'react'
 import useMutationQuery from '../../hooks/api/useMutationQuery'
-import { categoryQueries, transactionQueries } from '../../utils/dataQuery'
+import {
+  budgetQueries,
+  categoryQueries,
+  transactionQueries
+} from '../../utils/dataQuery'
 import { useQueryClient } from '@tanstack/react-query'
 import Button from '../common/Button'
 
@@ -29,8 +33,13 @@ const TransactionForm = ({ handleModalClose }: TransactionFormProps) => {
   const { mutation: addMutation } = useMutationQuery({
     mutationFn: transactionQueries.addTransaction,
     options: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: transactionQueries.all()
+        })
+        await queryClient.invalidateQueries({
+          queryKey: budgetQueries.all()
+        })
         handleModalClose()
       },
       onError: (error) => {

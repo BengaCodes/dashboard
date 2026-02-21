@@ -6,6 +6,7 @@ import type {
   TransactionWithCategory
 } from './database.types'
 import supabase from './supabase'
+import type { AuthUser } from './auth.type'
 
 export const transactionQueries = {
   all: () => ['transactions'],
@@ -63,6 +64,11 @@ export const categoryQueries = {
 export const budgetQueries = {
   all: () => ['budgets'],
   list: () => [...budgetQueries.all(), 'list'],
+  withSpentBudgets: (user: AuthUser, selectedMonth: string) => [
+    'budgetWithSpent',
+    user?.id,
+    selectedMonth
+  ],
   withSpent: () => [],
 
   getBudgets: async () => {
@@ -71,12 +77,20 @@ export const budgetQueries = {
     return res.data
   },
 
-  getBudgetWithSpent: async () => {
+  getBudgetWithSpent: async (selectedDate: Date) => {
     const budgetRes = await supabase.from('budgets').select('*, categories(*)')
     if (budgetRes.error) throw budgetRes.error
 
-    const currentMonth = new Date().getMonth()
-    const currentYear = new Date().getFullYear()
+    const monthStart = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      1
+    )
+    const monthEnd = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth() + 1,
+      0
+    )
 
     const budgetWithSpent = await Promise.all(
       (budgetRes.data || []).map(async (budget) => {
@@ -85,19 +99,10 @@ export const budgetQueries = {
           .select('amount')
           .eq('category_id', budget.category_id)
           .eq('type', 'expense')
-          .gte(
-            'date',
-            new Date(currentYear, currentMonth, 1).toISOString().split('T')[0]
-          )
-          .lte(
-            'date',
-            new Date(currentYear, currentMonth + 1, 0)
-              .toISOString()
-              .split('T')[0]
-          )
+          .gte('date', monthStart.toISOString().split('T')[0])
+          .lte('date', monthEnd.toISOString().split('T')[0])
 
-        const totalSpent =
-          spent?.reduce((sum, s) => sum + Number(s.amount), 0) || 0
+        const totalSpent = (spent || []).reduce((sum, t) => sum + t.amount, 0)
 
         return {
           ...budget,

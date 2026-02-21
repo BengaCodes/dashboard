@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import {
   calculateMetrics,
   getSpendingByCategory,
@@ -21,12 +21,16 @@ import {
   type TransactionWithCategory
 } from '../../utils/database.types'
 import TransactionFilter from '../filter/TransactionFilter'
+import { useAuth } from '../../state/useAuth'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date()
     return new Date(today.getFullYear(), today.getMonth())
   })
+
+  const { user } = useAuth()
 
   const { data: transactions, isLoading: transactionsLoading } = useFetchQuery<
     TransactionWithCategory[]
@@ -42,11 +46,11 @@ const Dashboard = () => {
     queryFn: categoryQueries.getCategories
   })
 
-  const { data: budgetWithSpent, isLoading: budgetsLoading } = useFetchQuery<
-    BudgetWithCategory[]
-  >({
-    key: budgetQueries.all(),
-    queryFn: budgetQueries.getBudgetWithSpent
+  const { data: budgetWithSpent } = useSuspenseQuery<BudgetWithCategory[]>({
+    queryKey: user
+      ? budgetQueries.withSpentBudgets(user, String(selectedDate.getMonth()))
+      : [],
+    queryFn: () => budgetQueries.getBudgetWithSpent(selectedDate)
   })
 
   const metrics = useMemo(
@@ -77,8 +81,7 @@ const Dashboard = () => {
     })
   }, [transactions, selectedDate])
 
-  if (transactionsLoading || budgetsLoading || categoriesLoading)
-    return <Loading />
+  if (transactionsLoading || categoriesLoading) return <Loading />
 
   return (
     <>
@@ -100,7 +103,9 @@ const Dashboard = () => {
         <div className='space-y-6 max-h-screen'>
           <SpendingChart data={spendingData} />
 
-          <BudgetOverview budgets={budgetWithSpent as BudgetWithCategory[]} />
+          <Suspense fallback={<Loading />}>
+            <BudgetOverview budgets={budgetWithSpent as BudgetWithCategory[]} />
+          </Suspense>
         </div>
       </div>
     </>
