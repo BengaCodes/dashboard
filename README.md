@@ -111,3 +111,27 @@ Users can select a month and year to narrow the transaction list, or toggle rece
 
 #### Related Issues/PRs
 Links to relevant issues or pull requests.
+
+### Feature: Authentication
+
+#### Description
+Implemented user authentication using Supabase Auth to secure the application and ensure only registered users can access the finance tracking features.
+
+#### Implementation Details
+- **Components**: `AuthProvider.tsx`, `AuthPage.tsx`
+- **Database Changes**: None (handled by Supabase Auth)
+- **API Endpoints**: Supabase Auth endpoints
+- **Dependencies**: `@supabase/auth-helpers-react`
+
+#### Usage
+Users can create an account or log in with email and password. Authentication state is managed globally and protects routes from unauthorized access.
+
+#### Technical Notes
+- Session tokens are stored securely in the browser
+- Auth state persists across browser sessions
+- Protected routes redirect unauthenticated users to login
+
+#### Related Issues/PRs
+N/A
+
+---
