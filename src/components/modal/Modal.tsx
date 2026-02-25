@@ -66,7 +66,7 @@ const Modal = ({
             </button>
           </div>
         )}
-        <div className='p-6'>{children}</div>
+        <div className='p-6 w-full'>{children}</div>
       </div>
     </div>,
     modalRoot

@@ -98,6 +98,7 @@ const TransactionsList = ({
         title='Add Transaction'
         isOpen={openModal}
         onClose={() => setOpenModal(false)}
+        size='lg'
       >
         <TransactionForm
           selectedDate={selectedDate}

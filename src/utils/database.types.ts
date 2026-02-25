@@ -14,15 +14,19 @@ export type Budget = {
   period: string
   category_id: number | null
 }
-
 export type Transaction = {
-  id: number
-  created_at: string
-  amount: number
-  description: string
-  date: string
-  type: 'income' | 'expense'
-  category_id: number | null
+  id: number;
+  date: string;
+  description: string;
+  amount: number;
+  category_id: number | null;
+  type: 'income' | 'expense';
+  user_id?: string;
+  recurring?: boolean;
+  recurring_frequency?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  recurring_end_date?: string | null;
+  recurring_next_date?: string | null;
+  parent_recurring_id?: string | null;
 }
 
 // Extended types with relations
