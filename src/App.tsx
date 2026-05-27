@@ -1,27 +1,31 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Suspense } from 'react'
 import Dashboard from './components/dashboard/Dashboard'
 import { useAuth } from './state/useAuth'
 import AuthPage from './components/auth/AuthPage'
+import Loading from './components/common/Loading'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 2,
+      retry: 1
+    }
+  }
+})
 
 const App = () => {
-  const activeSession = JSON.parse(
-    localStorage.getItem('sb-aahhzpfnqjkkssucoddo-auth-token')!
-  )
+  const { user, loading } = useAuth()
 
-  const { user } = useAuth()
-
-  if (!user && !activeSession) {
-    return <AuthPage />
-  }
+  if (loading) return <Loading />
+  if (!user) return <AuthPage />
 
   return (
-    <>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <Suspense fallback={<Loading />}>
         <Dashboard />
-      </QueryClientProvider>
-    </>
+      </Suspense>
+    </QueryClientProvider>
   )
 }
 

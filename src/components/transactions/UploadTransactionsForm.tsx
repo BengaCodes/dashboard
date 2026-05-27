@@ -1,109 +1,135 @@
 import { read, utils } from 'xlsx'
-import Button from '../common/Button'
 import { useState, type ChangeEvent } from 'react'
-import type { Category, Transaction } from '../../utils/database.types'
+import { FileSpreadsheet, UploadCloud } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
+import type { Category, Transaction } from '../../types'
 import { categoryQueries, transactionQueries } from '../../utils/dataQuery'
 import useMutationQuery from '../../hooks/api/useMutationQuery'
+import Button from '../common/Button'
+import Alert from '../ui/Alert'
 
-type UploadTransactionsFormProps = {
-  label: string
-  note: string
-  handleModalClose: () => void
-}
+type Props = { handleModalClose: () => void }
 
-type CSVTransaction = Omit<Transaction, 'id' | 'created_at'>
+type RawRow = Record<string, string | number>
 
-const UploadTransactionsForm = ({
-  label,
-  note,
-  handleModalClose
-}: UploadTransactionsFormProps) => {
-  const [transactions, setTransactions] = useState<CSVTransaction[]>([])
+const UploadTransactionsForm = ({ handleModalClose }: Props) => {
+  const [transactions, setTransactions] = useState<Omit<Transaction, 'id'>[]>([])
+  const [parseError, setParseError] = useState('')
+  const [fileName, setFileName] = useState('')
 
   const queryClient = useQueryClient()
-
   const categories = queryClient.getQueryData<Category[]>(categoryQueries.all())
 
   const { mutation } = useMutationQuery({
-    mutationFn: transactionQueries.addTransaction,
+    mutationFn: transactionQueries.bulkAddTransactions,
     options: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
         handleModalClose()
       },
-      onError: (error) => {
-        console.error({ error })
+      onError: (err) => {
+        setParseError(err instanceof Error ? err.message : 'Upload failed')
       }
     }
   })
 
-  const handleFileChange = (
-    e: ChangeEvent<HTMLInputElement, HTMLInputElement>
-  ) => {
-    const file = e.target.files
-    if (file && file[0]) {
-      handleFileReader(file[0])
-    }
-  }
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setFileName(file.name)
+    setParseError('')
 
-  const handleFileReader = (file: File) => {
     const reader = new FileReader()
     reader.readAsArrayBuffer(file)
-    reader.onload = (e) => {
-      const data = e.target?.result
-      const workBook = read(data, { type: 'binary' })
-      const sheetName = workBook.SheetNames[0]
-      const sheet = workBook.Sheets[sheetName]
-      const csvData = utils.sheet_to_json(sheet) as CSVTransaction[]
+    reader.onload = (ev) => {
+      try {
+        const workBook = read(ev.target?.result, { type: 'array' })
+        const sheet = workBook.Sheets[workBook.SheetNames[0]]
+        const rows = utils.sheet_to_json<RawRow>(sheet)
 
-      const parsedData: CSVTransaction[] = csvData.map((d) => {
-        const catId = categories?.find(
-          (c) => c.name === d.category_id?.toString()
-        )?.id
-        return {
-          ...d,
-          category_id: catId ?? null
+        const parsed = rows.map((row) => {
+          const categoryName = String(row.Category_id || row.category_id || '')
+          const catId = categories?.find(
+            (c) => c.name.toLowerCase() === categoryName.toLowerCase()
+          )?.id
+
+          return {
+            description: String(row.Description || row.description || ''),
+            amount: Number(row.Amount || row.amount || 0),
+            date: String(row.Date || row.date || ''),
+            type: String(row.Type || row.type || 'expense') as 'income' | 'expense',
+            category_id: catId ?? null
+          }
+        })
+
+        const invalid = parsed.filter((t) => !t.description || !t.date || !t.amount)
+        if (invalid.length > 0) {
+          setParseError(`${invalid.length} row(s) are missing required fields (Description, Amount, Date).`)
         }
-      })
 
-      if (parsedData) {
-        setTransactions(parsedData)
-      } else {
-        console.error('There has been an error uploading the file')
+        setTransactions(parsed)
+      } catch {
+        setParseError('Failed to parse the file. Please check the format.')
       }
     }
   }
 
-  const handleUpload = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleUpload = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    mutation.mutate(transactions)
+    if (transactions.length > 0) {
+      mutation.mutate(transactions)
+    }
   }
 
   return (
-    <form onSubmit={handleUpload}>
-      <label
-        className='block mb-2.5 text-sm font-medium text-heading'
-        htmlFor={label}
-      >
-        {label}
-      </label>
-      <input
-        className='cursor-pointer bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full shadow-xs placeholder:text-body'
-        id='small_size'
-        type='file'
-        accept='.xlsx,.xls'
-        onChange={handleFileChange}
-      />
+    <form onSubmit={handleUpload} className='space-y-5'>
+      <div>
+        <label className='flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors'>
+          <div className='flex flex-col items-center gap-2 text-slate-400'>
+            <UploadCloud size={28} />
+            <span className='text-sm'>
+              {fileName ? (
+                <span className='text-slate-700 font-medium flex items-center gap-1.5'>
+                  <FileSpreadsheet size={14} className='text-emerald-600' />
+                  {fileName}
+                </span>
+              ) : (
+                'Click to upload .xlsx or .xls'
+              )}
+            </span>
+          </div>
+          <input
+            type='file'
+            accept='.xlsx,.xls'
+            onChange={handleFileChange}
+            className='hidden'
+          />
+        </label>
+      </div>
 
-      <cite
-        className='mt-2 text-sm text-gray-500 dark:text-gray-500'
-        id='file_input_help'
-      >
-        {note}
-      </cite>
-      <div className='flex justify-end mt-2'>
-        <Button>Upload Transactions</Button>
+      <Alert variant='info' title='Required columns'>
+        Description, Amount, Date, Type (income/expense), Category_id (category name)
+      </Alert>
+
+      {parseError && <Alert variant='warning'>{parseError}</Alert>}
+
+      {transactions.length > 0 && !parseError && (
+        <Alert variant='success'>
+          {transactions.length} transaction{transactions.length !== 1 ? 's' : ''} ready to import
+        </Alert>
+      )}
+
+      <div className='flex justify-end gap-3 pt-1'>
+        <Button type='button' variant='secondary' onClick={handleModalClose}>
+          Cancel
+        </Button>
+        <Button
+          type='submit'
+          disabled={!transactions.length || !!parseError || mutation.isPending}
+          variant='success'
+        >
+          {mutation.isPending ? 'Uploading…' : `Upload ${transactions.length || ''} Transactions`}
+        </Button>
       </div>
     </form>
   )

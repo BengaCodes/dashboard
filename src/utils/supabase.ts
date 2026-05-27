@@ -1,8 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
+// Supabase has been replaced by the NestJS backend.
+// All API calls now go through src/api/client.ts.
+// This file is kept for reference only and should not be imported.
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY
-
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-export default supabase
+export default null

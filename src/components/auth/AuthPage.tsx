@@ -1,9 +1,10 @@
+import { useState } from 'react'
 import { Wallet } from 'lucide-react'
 import Input from '../common/Input'
 import Button from '../common/Button'
-import { useState } from 'react'
-import useInput from '../../hooks/common/useInput'
+import Alert from '../ui/Alert'
 import { useAuth } from '../../state/useAuth'
+import useInput from '../../hooks/common/useInput'
 
 const AuthPage = () => {
   const { signUp, signIn } = useAuth()
@@ -16,7 +17,7 @@ const AuthPage = () => {
   const { value: confirmPassword, handleChange: confirmPasswordChange } =
     useInput('')
 
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -25,94 +26,95 @@ const AuthPage = () => {
       if (isSignUp) {
         if (password !== confirmPassword) {
           setError('Passwords do not match')
-          throw new Error('Passwords do not match')
+          return
         }
         await signUp(String(email), String(password))
       } else {
         await signIn(String(email), String(password))
       }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     } finally {
       setLoading(false)
     }
   }
 
+  const switchMode = () => {
+    setIsSignUp((v) => !v)
+    setError('')
+  }
+
   return (
-    <div className='flex min-h-screen bg-linear-to-br from-blue-50 to-blue-100 items-center justify-center p-4'>
-      <div className='w-full max-w-md'>
-        <div className='bg-white rounded-xl shadow-lg p-8'>
-          <div className='flex items-center justify-center mb-8'>
-            <Wallet className='w-10 h-10 text-blue-600 mr-3' />
-            <h1 className='text-2xl font-bold text-gray-900'>FinTraxx</h1>
+    <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-slate-100 p-4'>
+      <div className='w-full max-w-md animate-fade-in'>
+        <div className='bg-white rounded-2xl shadow-lg p-8 space-y-6'>
+          <div className='text-center'>
+            <div className='inline-flex items-center justify-center w-14 h-14 bg-blue-600 rounded-xl mb-4'>
+              <Wallet className='w-7 h-7 text-white' />
+            </div>
+            <h1 className='text-2xl font-bold text-slate-900'>FinTraxx</h1>
+            <p className='text-sm text-slate-500 mt-1'>
+              {isSignUp ? 'Create your account' : 'Welcome back'}
+            </p>
           </div>
 
-          <h2 className='text-xl font-semibold text-gray-900 mb-6 text-center'>
-            {isSignUp ? 'Create Account' : 'Welcome Back'}
-          </h2>
-
-          <form action='' className='space-y-4' onSubmit={handleSubmit}>
-            <div>
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <Input
+              label='Email'
+              type='email'
+              required
+              placeholder='you@example.com'
+              value={email}
+              onChange={emailChange}
+              autoComplete='email'
+            />
+            <Input
+              label='Password'
+              type='password'
+              required
+              placeholder='••••••••'
+              value={password}
+              onChange={passwordChange}
+              autoComplete={isSignUp ? 'new-password' : 'current-password'}
+            />
+            {isSignUp && (
               <Input
-                label='Email'
-                type='email'
-                required
-                placeholder='you@example.com'
-                value={email}
-                onChange={emailChange}
-              />
-            </div>
-            <div>
-              <Input
-                label='Password'
+                label='Confirm Password'
                 type='password'
                 required
                 placeholder='••••••••'
-                value={password}
-                onChange={passwordChange}
+                value={confirmPassword}
+                onChange={confirmPasswordChange}
+                autoComplete='new-password'
               />
-            </div>
-
-            {isSignUp && (
-              <div>
-                <Input
-                  label='Confirm Password'
-                  type='Password'
-                  placeholder='••••••••'
-                  value={confirmPassword}
-                  onChange={confirmPasswordChange}
-                />
-              </div>
             )}
 
-            {error && (
-              <div className='p-3 bg-red-50 border border-red-200 rounded-lg'>
-                <p className='text-sm text-red-red-600'>{error}</p>
-              </div>
-            )}
+            {error && <Alert variant='danger'>{error}</Alert>}
 
             <Button
               type='submit'
               disabled={loading}
-              className='w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 rounded-lg transition-colors'
+              size='lg'
+              className='w-full mt-2'
             >
-              {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
+              {loading
+                ? 'Please wait…'
+                : isSignUp
+                  ? 'Create Account'
+                  : 'Sign In'}
             </Button>
           </form>
 
-          <div className='mt-6 text-center'>
-            <p className='text-gray-600 text-sm'>
-              {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-              <Button
-                onClick={() => {
-                  setIsSignUp(!isSignUp)
-                  setError('')
-                }}
-              >
-                {isSignUp ? 'Sign In' : 'Sign Up'}
-              </Button>
-            </p>
-          </div>
+          <p className='text-center text-sm text-slate-500'>
+            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+            <button
+              type='button'
+              onClick={switchMode}
+              className='font-medium text-blue-600 hover:text-blue-700 underline-offset-2 hover:underline'
+            >
+              {isSignUp ? 'Sign in' : 'Sign up'}
+            </button>
+          </p>
         </div>
       </div>
     </div>
