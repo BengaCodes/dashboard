@@ -7,18 +7,20 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth()
 
   return (
-    <div className='min-h-screen bg-linear-to-br from-slate-50 to-slate-100'>
+    <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-        <div className='mb-8 flex justify-between'>
-          <div>
-            <FintraxxLogo className='mb-2' />
-            <p className='text-gray-600'>
-              Track your income, expenses, and budgets
-            </p>
-          </div>
-          {user && <UserInput />}
-        </div>
-        {children}
+        {user && (
+          <header className='mb-8 flex items-start justify-between'>
+            <div>
+              <FintraxxLogo className='mb-1' />
+              <p className='text-sm text-slate-500 ml-1'>
+                Track your income, expenses, and budgets
+              </p>
+            </div>
+            <UserInput />
+          </header>
+        )}
+        <main>{children}</main>
       </div>
     </div>
   )

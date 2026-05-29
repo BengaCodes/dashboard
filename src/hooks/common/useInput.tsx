@@ -12,6 +12,7 @@ const useInput = (
   ) => {
     setValue(e.target.value)
   }
+
   return { value, handleChange }
 }
 

@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { formatAmount } from '../../utils/utils'
+import type { Category } from '../../types'
 import ChartItem from './ChartItem'
+import Card from '../ui/Card'
 
 interface SpendingChartProps {
   data: {
-    category: any
+    category: Category
     amount: number
     percentage: number
   }[]
@@ -15,35 +15,35 @@ const SpendingChart = ({ data }: SpendingChartProps) => {
   const total = data.reduce((acc, cur) => acc + cur.amount, 0)
 
   return (
-    <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-4 max-h-4/5'>
-      <h2 className='text-lg font-semibold text-gray-900 mb-6'>
-        Spending by Category
-      </h2>
+    <Card padding='none' className='overflow-hidden'>
+      <div className='px-5 py-4 border-b border-slate-100'>
+        <h2 className='text-base font-semibold text-slate-900'>
+          Spending by Category
+        </h2>
+      </div>
 
-      <div className='space-y-4 max-h-96 p-4 overflow-auto'>
+      <div className='px-5 py-4 space-y-4 max-h-80 overflow-y-auto'>
         {data.length === 0 ? (
-          <div className='text-center text-gray-500 py-8'>
-            No spending data available
+          <div className='py-8 text-center'>
+            <p className='text-sm text-slate-400'>No spending this month</p>
           </div>
         ) : (
-          data.map((item, i) => (
-            <ChartItem data={item} key={item.category + i} />
-          ))
-        )}
-        {data.length > 0 && (
-          <div className='mt-6 pt-6 border-t border-gray-100 px-4'>
-            <div className='flex items-center justify-between'>
-              <span className='text-sm font-medium text-gray-700'>
-                Total Spending
+          <>
+            {data.map((item, i) => (
+              <ChartItem key={item.category.id ?? i} data={item} />
+            ))}
+            <div className='pt-3 mt-3 border-t border-slate-100 flex items-center justify-between'>
+              <span className='text-sm font-medium text-slate-600'>
+                Total spending
               </span>
-              <span className='text-lg font-bold text-gray-900'>
+              <span className='text-sm font-bold text-slate-900'>
                 {formatAmount(total)}
               </span>
             </div>
-          </div>
+          </>
         )}
       </div>
-    </div>
+    </Card>
   )
 }
 

@@ -1,76 +1,53 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import type { AuthUser } from '../utils/auth.type'
-import supabase from '../utils/supabase'
+import { useState, type ReactNode, useCallback } from 'react'
+import type { AuthContextType, AuthUser } from '../utils/auth.type'
+import { authApi } from '../api/auth.api'
 import { AuthContext } from './useAuth'
 
+const TOKEN_KEY = 'fintraxx_token'
+const USER_KEY = 'fintraxx_user'
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const initializeAuth = async () => {
-      const {
-        data: { session }
-      } = await supabase.auth.getSession()
-
-      if (session?.user) {
-        setUser({
-          id: session.user.id ?? '',
-          email: session.user.email ?? ''
-        })
-        setLoading(false)
-      }
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    try {
+      const stored = localStorage.getItem(USER_KEY)
+      return stored ? JSON.parse(stored) : null
+    } catch {
+      return null
     }
+  })
+  const [loading, setLoading] = useState(false)
 
-    initializeAuth()
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser({
-          id: session.user.id ?? '',
-          email: session.user.email ?? ''
-        })
-      } else {
-        setUser(null)
-      }
-    })
-
-    return () => subscription.unsubscribe()
+  const signUp = useCallback(async (email: string, password: string) => {
+    setLoading(true)
+    try {
+      const { token, user } = await authApi.signUp(email, password)
+      localStorage.setItem(TOKEN_KEY, token)
+      localStorage.setItem(USER_KEY, JSON.stringify(user))
+      setUser(user)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password
-    })
+  const signIn = useCallback(async (email: string, password: string) => {
+    setLoading(true)
+    try {
+      const { token, user } = await authApi.signIn(email, password)
+      localStorage.setItem(TOKEN_KEY, token)
+      localStorage.setItem(USER_KEY, JSON.stringify(user))
+      setUser(user)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
-    if (error) throw error
-  }
+  const signOut = useCallback(async () => {
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(USER_KEY)
+    setUser(null)
+  }, [])
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-
-    if (error) throw error
-  }
-
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-
-    if (error) throw error
-  }
-
-  const value = {
-    user,
-    signIn,
-    signOut,
-    signUp,
-    loading
-  }
+  const value: AuthContextType = { user, loading, signUp, signIn, signOut }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

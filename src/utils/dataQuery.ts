@@ -1,124 +1,49 @@
-import type {
-  Budget,
-  BudgetWithCategory,
-  Category,
-  Transaction,
-  TransactionWithCategory
-} from './database.types'
-import supabase from './supabase'
-import type { AuthUser } from './auth.type'
+import { transactionsApi, type TransactionFilters } from '../api/transactions.api'
+import { categoriesApi } from '../api/categories.api'
+import { budgetsApi } from '../api/budgets.api'
+import type { Budget, Transaction } from '../types'
 
 export const transactionQueries = {
   all: () => ['transactions'],
-  list: (filters?: { limit?: number; order?: 'asc' | 'desc' }) => [
+  list: (filters?: TransactionFilters) => [
     ...transactionQueries.all(),
     'list',
     filters
   ],
-  detail: (id: number) => [...transactionQueries.all(), 'detail', id],
 
-  getTransactions: async (limit = 15) => {
-    const res = await supabase
-      .from('transactions')
-      .select('*, categories(*)')
-      .order('date', { ascending: false })
-      .limit(limit)
-
-    if (res.error) throw res.error
-
-    return res.data as TransactionWithCategory[]
-  },
-
-  deleteTransaction: async (id: number) => {
-    const res = await supabase.from('transactions').delete().eq('id', id)
-    if (res.error) throw res.error
-    return res
-  },
-
-  addTransaction: async (
-    transaction:
-      | Omit<Transaction, 'id' | 'created_at'>
-      | Omit<Transaction, 'id' | 'created_at'>[]
-  ) => {
-    const res = await supabase.from('transactions').insert(transaction)
-    if (res.error) throw res.error
-
-    return res
-  }
+  getTransactions: () => transactionsApi.getAll(),
+  deleteTransaction: (id: number) => transactionsApi.delete(id),
+  addTransaction: (transaction: Omit<Transaction, 'id'>) =>
+    transactionsApi.create(transaction),
+  bulkAddTransactions: (transactions: Omit<Transaction, 'id'>[]) =>
+    transactionsApi.bulkCreate(transactions)
 }
 
 export const categoryQueries = {
   all: () => ['categories'],
   list: () => [...categoryQueries.all(), 'list'],
-
-  getCategories: async () => {
-    const res = await supabase
-      .from('categories')
-      .select('*')
-      .order('name', { ascending: true })
-    if (res.error) throw res.error
-    return res.data as Category[]
-  }
+  getCategories: () => categoriesApi.getAll()
 }
 
 export const budgetQueries = {
   all: () => ['budgets'],
   list: () => [...budgetQueries.all(), 'list'],
-  withSpentBudgets: (user: AuthUser, selectedMonth: string) => [
+  withSpentBudgets: (userId: string, month: string) => [
     'budgetWithSpent',
-    user?.id,
-    selectedMonth
+    userId,
+    month
   ],
-  withSpent: () => [],
 
-  getBudgets: async () => {
-    const res = await supabase.from('budgets').select('*, categories(*)')
-    if (res.error) throw res.error
-    return res.data
-  },
-
-  getBudgetWithSpent: async (selectedDate: Date) => {
-    const budgetRes = await supabase.from('budgets').select('*, categories(*)')
-    if (budgetRes.error) throw budgetRes.error
-
-    const monthStart = new Date(
+  getBudgets: () => budgetsApi.getAll(),
+  getBudgetWithSpent: (selectedDate: Date) =>
+    budgetsApi.getWithSpent(
       selectedDate.getFullYear(),
-      selectedDate.getMonth(),
-      1
-    )
-    const monthEnd = new Date(
-      selectedDate.getFullYear(),
-      selectedDate.getMonth() + 1,
-      0
-    )
-
-    const budgetWithSpent = await Promise.all(
-      (budgetRes.data || []).map(async (budget) => {
-        const { data: spent } = await supabase
-          .from('transactions')
-          .select('amount')
-          .eq('category_id', budget.category_id)
-          .eq('type', 'expense')
-          .gte('date', monthStart.toISOString().split('T')[0])
-          .lte('date', monthEnd.toISOString().split('T')[0])
-
-        const totalSpent = (spent || []).reduce((sum, t) => sum + t.amount, 0)
-
-        return {
-          ...budget,
-          spent: totalSpent
-        }
-      })
-    )
-
-    return budgetWithSpent as BudgetWithCategory[]
-  },
-
-  addBudget: async (budget: Omit<Budget, 'id' | 'created_at'>) => {
-    const res = await supabase.from('budgets').insert(budget)
-
-    if (res.error) throw res.error
-
-    return res
-  }
+      selectedDate.getMonth()
+    ),
+  addBudget: (budget: Omit<Budget, 'id' | 'created_at'>) =>
+    budgetsApi.create({
+      amount: budget.amount,
+      period: budget.period,
+      category_id: budget.category_id ?? undefined
+    })
 }

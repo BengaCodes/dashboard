@@ -1,14 +1,18 @@
+import { useMemo, useState } from 'react'
+import { Plus, Upload } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import useMutationQuery from '../../hooks/api/useMutationQuery'
-import type { TransactionWithCategory } from '../../utils/database.types'
+import type { TransactionWithCategory } from '../../types'
 import { budgetQueries, transactionQueries } from '../../utils/dataQuery'
 import TransactionCell from './TransactionCells'
 import IconButton from '../common/IconButton'
-import { Plus, Upload } from 'lucide-react'
-import { useMemo, useState } from 'react'
 import Modal from '../modal/Modal'
 import TransactionForm from './AddTransactionForm'
 import UploadTransactionsForm from './UploadTransactionsForm'
+import { SkeletonRow } from '../ui/Skeleton'
+import Card from '../ui/Card'
+
+const FILTER_OPTIONS = ['All', 'Income', 'Expense'] as const
 
 const TransactionsList = ({
   transactions,
@@ -17,74 +21,75 @@ const TransactionsList = ({
   transactions: TransactionWithCategory[]
   selectedDate: Date
 }) => {
-  const [openModal, setOpenModal] = useState(false)
-  const [openBulkUploadModal, setOpenBulkUploadModal] = useState(false)
-  const [filterType, setFilterType] = useState('All')
-
-  const filteredTransactions = useMemo(() => {
-    if (filterType === 'All') return transactions
-    return transactions.filter((x) => x.type === filterType.toLowerCase())
-  }, [transactions, filterType])
+  const [openAdd, setOpenAdd] = useState(false)
+  const [openUpload, setOpenUpload] = useState(false)
+  const [filterType, setFilterType] = useState<(typeof FILTER_OPTIONS)[number]>('All')
 
   const queryClient = useQueryClient()
+
+  const filtered = useMemo(() => {
+    if (filterType === 'All') return transactions
+    return transactions.filter((t) => t.type === filterType.toLowerCase())
+  }, [transactions, filterType])
 
   const { mutation: deleteMutation } = useMutationQuery({
     mutationFn: transactionQueries.deleteTransaction,
     options: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: transactionQueries.all()
-        })
-        await queryClient.invalidateQueries({
-          queryKey: budgetQueries.all()
-        })
-      },
-      onError: (error) => {
-        console.log({ error })
+        await queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
+        await queryClient.invalidateQueries({ queryKey: budgetQueries.all() })
       }
     }
   })
 
-  const handleOpenModal = () => {
-    setOpenModal(true)
-  }
-
   return (
     <>
-      <div className='bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden'>
-        <div className='p-4 border-b border-gray-100 flex justify-between'>
-          <div className='flex gap-4 justify-center items-center'>
-            <h2 className='text-lg font-semibold text-gray-900'>
-              Recent Transactions
+      <Card padding='none' className='overflow-hidden'>
+        <div className='flex items-center justify-between px-5 py-4 border-b border-slate-100'>
+          <div className='flex items-center gap-3'>
+            <h2 className='text-base font-semibold text-slate-900'>
+              Transactions
             </h2>
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className='px-3 py-2 rounded-lg border border-gray-200 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500'
-            >
-              {['All', 'Income', 'Expense'].map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
+            <div className='flex rounded-lg border border-slate-200 overflow-hidden text-xs font-medium'>
+              {FILTER_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => setFilterType(opt)}
+                  className={`px-3 py-1.5 transition-colors ${
+                    filterType === opt
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {opt}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
-          <div className='flex justify-between gap-4'>
+          <div className='flex gap-2'>
             <IconButton
-              variant='emerald'
-              onClick={() => setOpenBulkUploadModal(true)}
+              variant='success'
+              size='sm'
+              onClick={() => setOpenUpload(true)}
               icon={Upload}
+              label='Bulk upload'
             />
-            <IconButton onClick={handleOpenModal} icon={Plus} />
+            <IconButton
+              size='sm'
+              onClick={() => setOpenAdd(true)}
+              icon={Plus}
+              label='Add transaction'
+            />
           </div>
         </div>
-        <div className='divide-y divide-gray-100 max-h-screen overflow-y-auto'>
-          {filteredTransactions?.length === 0 ? (
-            <div className='p-8 text-center text-gray-500'>
-              No transactions yet
+
+        <div className='divide-y divide-slate-100 max-h-[calc(100vh-320px)] overflow-y-auto'>
+          {filtered.length === 0 ? (
+            <div className='py-16 text-center'>
+              <p className='text-sm text-slate-400'>No transactions yet</p>
             </div>
           ) : (
-            filteredTransactions.map((tr: TransactionWithCategory) => (
+            filtered.map((tr) => (
               <TransactionCell
                 key={tr.id}
                 transaction={tr}
@@ -93,32 +98,32 @@ const TransactionsList = ({
             ))
           )}
         </div>
-      </div>
+      </Card>
+
       <Modal
         title='Add Transaction'
-        isOpen={openModal}
-        onClose={() => setOpenModal(false)}
+        isOpen={openAdd}
+        onClose={() => setOpenAdd(false)}
         size='lg'
       >
         <TransactionForm
           selectedDate={selectedDate}
-          handleModalClose={() => setOpenModal(false)}
+          handleModalClose={() => setOpenAdd(false)}
         />
       </Modal>
+
       <Modal
         title='Upload Transactions'
-        isOpen={openBulkUploadModal}
-        onClose={() => setOpenBulkUploadModal(false)}
+        isOpen={openUpload}
+        onClose={() => setOpenUpload(false)}
       >
         <UploadTransactionsForm
-          label='Upload Transactions'
-          note='        Please upload an Excel file (.xlsx, .xls) containing the following
-        fields: Amount, Description, Date, Category_id and Type (income/expense).'
-          handleModalClose={() => setOpenBulkUploadModal(false)}
+          handleModalClose={() => setOpenUpload(false)}
         />
       </Modal>
     </>
   )
 }
 
+export { SkeletonRow }
 export default TransactionsList

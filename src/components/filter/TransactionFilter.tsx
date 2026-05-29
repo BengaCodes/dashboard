@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react'
 import { months } from '../../utils/utils'
 import type { ChangeEvent } from 'react'
 
@@ -12,69 +12,60 @@ const TransactionFilter = ({
   onChangeDate
 }: TransactionFilterProps) => {
   const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: 3 }, (_, i) => currentYear - 2 + i)
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i)
 
-  const handlePrevMonth = () => {
-    const newDate = new Date(selectedDate)
-    if (selectedDate.getMonth() === 0) {
-      newDate.setMonth(11)
-      newDate.setFullYear(selectedDate.getFullYear() - 1)
+  const move = (direction: 'prev' | 'next') => {
+    const d = new Date(selectedDate)
+    if (direction === 'prev') {
+      d.setMonth(d.getMonth() - 1)
     } else {
-      newDate.setMonth(newDate.getMonth() - 1)
+      d.setMonth(d.getMonth() + 1)
     }
-    onChangeDate(newDate)
-  }
-
-  const handleNextMonth = () => {
-    const newDate = new Date(selectedDate)
-    if (selectedDate.getMonth() === 11) {
-      newDate.setMonth(0)
-      newDate.setFullYear(selectedDate.getFullYear() + 1)
-    } else {
-      newDate.setMonth(newDate.getMonth() + 1)
-    }
-    onChangeDate(newDate)
+    onChangeDate(d)
   }
 
   const handleMonthChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const newDate = new Date(selectedDate)
-    newDate.setMonth(+e.target.value)
-    onChangeDate(newDate)
+    const d = new Date(selectedDate)
+    d.setMonth(+e.target.value)
+    onChangeDate(d)
   }
 
   const handleYearChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const newDate = new Date(selectedDate)
-    newDate.setFullYear(+e.target.value)
-    onChangeDate(newDate)
+    const d = new Date(selectedDate)
+    d.setFullYear(+e.target.value)
+    onChangeDate(d)
   }
 
-  const disableNextButton =
+  const isFirst =
+    selectedDate.getMonth() === 0 && selectedDate.getFullYear() === years[0]
+  const isLast =
     selectedDate.getMonth() === 11 &&
     selectedDate.getFullYear() === years[years.length - 1]
 
-  const disablePrevButton =
-    selectedDate.getMonth() === 0 && selectedDate.getFullYear() === years[0]
+  const selectClass =
+    'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-slate-300 transition-colors cursor-pointer'
 
   return (
-    <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-6'>
-      <div className='flex items-center justify-between gap-4'>
-        <button
-          onClick={handlePrevMonth}
-          className='p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent'
-          aria-label='Previous month'
-          disabled={disablePrevButton}
-        >
-          <ChevronLeft className='w-5 h-5 text-gray-600' />
-        </button>
+    <div className='bg-white rounded-xl shadow-sm border border-slate-100 px-5 py-3'>
+      <div className='flex items-center gap-3'>
+        <CalendarDays size={18} className='text-slate-400 shrink-0' />
+        <div className='flex items-center gap-2 flex-1'>
+          <button
+            onClick={() => move('prev')}
+            disabled={isFirst}
+            aria-label='Previous month'
+            className='p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors'
+          >
+            <ChevronLeft size={16} className='text-slate-600' />
+          </button>
 
-        <div className='flex items-center gap-3 flex-1'>
           <select
             value={selectedDate.getMonth()}
             onChange={handleMonthChange}
-            className='flex-1 px-3 py-2 rounded-lg border border-gray-200 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500'
+            className={`${selectClass} flex-1`}
           >
-            {months.map((month, index) => (
-              <option key={month} value={index}>
+            {months.map((month, i) => (
+              <option key={month} value={i}>
                 {month}
               </option>
             ))}
@@ -83,7 +74,7 @@ const TransactionFilter = ({
           <select
             value={selectedDate.getFullYear()}
             onChange={handleYearChange}
-            className='px-3 py-2 rounded-lg border border-gray-200 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500'
+            className={selectClass}
           >
             {years.map((year) => (
               <option key={year} value={year}>
@@ -91,16 +82,16 @@ const TransactionFilter = ({
               </option>
             ))}
           </select>
-        </div>
 
-        <button
-          onClick={handleNextMonth}
-          className='p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent'
-          aria-label='Next month'
-          disabled={disableNextButton}
-        >
-          <ChevronRight className='w-5 h-5 text-gray-600' />
-        </button>
+          <button
+            onClick={() => move('next')}
+            disabled={isLast}
+            aria-label='Next month'
+            className='p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors'
+          >
+            <ChevronRight size={16} className='text-slate-600' />
+          </button>
+        </div>
       </div>
     </div>
   )
