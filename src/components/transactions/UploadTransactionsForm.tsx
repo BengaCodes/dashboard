@@ -3,7 +3,7 @@ import { useState, type ChangeEvent } from 'react'
 import { FileSpreadsheet, UploadCloud } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import type { Category, Transaction } from '../../types'
-import { categoryQueries, transactionQueries } from '../../utils/dataQuery'
+import { budgetQueries, categoryQueries, transactionQueries } from '../../utils/dataQuery'
 import useMutationQuery from '../../hooks/api/useMutationQuery'
 import Button from '../common/Button'
 import Alert from '../ui/Alert'
@@ -23,8 +23,10 @@ const UploadTransactionsForm = ({ handleModalClose }: Props) => {
   const { mutation } = useMutationQuery({
     mutationFn: transactionQueries.bulkAddTransactions,
     options: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
+        await queryClient.invalidateQueries({ queryKey: budgetQueries.all() })
+        await queryClient.invalidateQueries({ queryKey: budgetQueries.allWithSpent() })
         handleModalClose()
       },
       onError: (err) => {

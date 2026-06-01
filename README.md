@@ -142,26 +142,45 @@ dashboard/
 ## Design System
 
 All design tokens are defined as CSS custom properties in `src/index.css` and are available globally.
+The theme is a **dark fintech** palette with two typefaces loaded from Google Fonts.
+
+### Typography
+
+| Token | Font | Weights | Usage |
+|-------|------|---------|-------|
+| `--font-ui` | Syne | 400, 500, 600, 700 | All UI text, headings, nav, buttons |
+| `--font-mono` | DM Mono | 400, 500 | Numbers, monetary values, labels, period indicators |
+
+Apply `DM Mono` by adding the `font-mono` class, the `data-mono` attribute, or `.tabular-nums`.
 
 ### Colour Tokens
 
+#### Background
+
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--color-primary` | `#2563eb` | Buttons, links, focus rings |
-| `--color-primary-hover` | `#1d4ed8` | Hover state |
-| `--color-primary-light` | `#dbeafe` | Tinted backgrounds |
-| `--color-success` | `#059669` | Income, positive changes |
-| `--color-success-light` | `#d1fae5` | Success tint |
-| `--color-warning` | `#d97706` | Budget warnings |
-| `--color-warning-light` | `#fef3c7` | Warning tint |
-| `--color-danger` | `#dc2626` | Expenses, errors, delete actions |
-| `--color-danger-light` | `#fee2e2` | Error tint |
-| `--color-surface` | `#ffffff` | Card backgrounds |
-| `--color-bg` | `#f8fafc` | Page background |
-| `--color-border` | `#e2e8f0` | Default borders |
-| `--color-text-primary` | `#0f172a` | Headings, body |
-| `--color-text-secondary` | `#475569` | Supporting text |
-| `--color-text-muted` | `#94a3b8` | Placeholder, captions |
+| `--color-bg-base` | `#0B0F1A` | Page background |
+| `--color-bg-surface` | `#111626` | Card / panel surfaces |
+| `--color-bg-panel` | `#0D1120` | Nested panels, sidebars |
+
+#### Accents
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--color-accent-green` | `#4DFFC3` | Income, positive, active nav, success states |
+| `--color-accent-red` | `#FF4E7A` | Expenses, negative, danger, delete actions |
+| `--color-accent-blue` | `#1EC8FF` | Primary actions, links, focus rings |
+
+#### Text
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--color-text-primary` | `#F0EFE8` | Body text, headings |
+| `--color-text-muted` | `#4A5068` | Captions, placeholders, secondary labels |
+
+#### Legacy Aliases (kept for compatibility)
+
+`--color-primary → --color-accent-blue`, `--color-success → --color-accent-green`, `--color-danger → --color-accent-red`, `--color-surface → --color-bg-surface`, `--color-bg → --color-bg-base`, `--color-border → rgba(240,239,232,0.08)`
 
 ### Other Tokens
 
@@ -181,10 +200,10 @@ Reusable primitives live in `src/components/ui/` and `src/components/common/`.
 
 | Component | Props | Description |
 |-----------|-------|-------------|
-| `Card` | `padding`, `hover`, `className` | White card with border + shadow. Has `Card.Header` and `Card.Title` sub-components |
+| `Card` | `padding`, `hover`, `className` | Dark card with surface background. Has `Card.Header` and `Card.Title` sub-components |
 | `Badge` | `variant` (default/success/warning/danger/info) | Pill label for status |
 | `Progress` | `value`, `color`, `size`, `showLabel` | Colour-coded progress bar |
-| `Alert` | `variant`, `title` | Info/success/warning/danger message box |
+| `Alert` | `variant`, `title` | Info/success/warning/danger banners |
 | `Skeleton` | `className` | Animated loading placeholder. Also exports `SkeletonCard`, `SkeletonRow` |
 
 ### Common Components (`src/components/common/`)
@@ -198,8 +217,21 @@ Reusable primitives live in `src/components/ui/` and `src/components/common/`.
 | `Modal` | `isOpen`, `onClose`, `title`, `size` | Portal-based modal. Closes on Escape or backdrop click |
 | `Loading` | — | Full loading screen animation |
 | `Spinner` | `size` | Inline spinning SVG |
-| `FintraxxLogo` | `className` | SVG logo + wordmark |
+| `FintraxxLogo` | `className` | 34×34 teal-to-blue gradient icon + Syne/DM Mono wordmark |
 | `Icons` | `iconName` + any SVG props | Dynamic Lucide icon renderer |
+
+### Layout Components (`src/components/layout/`)
+
+| Component | Props | Description |
+|-----------|-------|-------------|
+| `Navbar` | `activeTab`, `onTabChange` | Sticky top navbar — logo left, nav links centre, user avatar right. Background `#0E1220` with hairline bottom border |
+| `Layout` | `children` | Page shell. Renders `Navbar` when authenticated; holds `activeTab` state |
+
+### Hero Component (`src/components/hero/`)
+
+| Component | Props | Description |
+|-----------|-------|-------------|
+| `HeroSection` | `selectedDate`, `onChangeDate`, `income`, `expenses`, `balance` | Dashboard hero — period selector (arrows + DM Mono label), large balance display, 2-column Income / Expenses stat cards |
 
 ---
 
@@ -466,6 +498,101 @@ If you previously used this app with Supabase Auth:
 ---
 
 ## Changelog
+
+### v1.1.0 — Dark Fintech Theme & UI Redesign
+
+**Theme**
+- Replaced light slate palette with a dark fintech theme across `src/index.css`
+- New background tokens: `--color-bg-base` (#0B0F1A), `--color-bg-surface` (#111626), `--color-bg-panel` (#0D1120)
+- New accent tokens: `--color-accent-green` (#4DFFC3), `--color-accent-red` (#FF4E7A), `--color-accent-blue` (#1EC8FF)
+- Text tokens updated: `--color-text-primary` (#F0EFE8), `--color-text-muted` (#4A5068)
+- All old light-theme tokens kept as CSS variable aliases so existing components continue working
+- Shimmer skeleton updated to use dark surface colours
+
+**Typography**
+- Added Syne (400/500/600/700) and DM Mono (400/500) via Google Fonts in `index.html`
+- `--font-ui: 'Syne'` applied globally to `body`
+- `--font-mono: 'DM Mono'` applied via `.font-mono`, `[data-mono]`, `.tabular-nums`
+
+**Navbar (`src/components/layout/Navbar.tsx`)** — new component
+- Sticky top bar, `background: #0E1220`, `border-bottom: 0.5px solid rgba(255,255,255,0.07)`, 60px height
+- Left: `FintraxxLogo`; Centre: Overview / Transactions / Budgets / Analytics nav links; Right: `UserInput`
+- Active link: `rgba(77,255,195,0.08)` background + `--color-accent-green` text, Syne 600
+- Hover: lifts muted text to primary with subtle background
+
+**FintraxxLogo** — updated
+- Resized from 44×44 to 34×34px; gradient fill updated to teal→blue (`#4DFFC3 → #1EC8FF`), `border-radius: 8px`
+- Wordmark: "FinTraxx" in Syne 700 18px; "FINANCE TRACKER" in DM Mono 400 10px uppercase muted
+
+**UserInput** — updated
+- Avatar: 32px circle with teal→blue gradient, shows initials derived from email (e.g. `benga.olasebikan@…` → "BO")
+- Email shown in DM Mono 12px to the right of avatar (hidden on mobile)
+- Dropdown updated to dark surface colours; sign-out hover turns red accent
+
+**HeroSection (`src/components/hero/HeroSection.tsx`)** — new component
+- Period selector: left/right arrow buttons + "MONTH YEAR" in DM Mono 500 uppercase (e.g. "JUNE 2026")
+- Net balance: "NET BALANCE" label in DM Mono 11px uppercase muted; value in Syne 700 48px, letter-spacing −2px
+- 2-column stat cards (Income, Expenses): `background: #111626`, `border: 0.5px solid rgba(255,255,255,0.06)`, `border-radius: 12px`; 2px top accent stripe (green / red); icon in tinted circle (top-right); value in Syne 700 26px accent colour; label in DM Mono 11px uppercase
+
+**Dashboard** — updated
+- Removed `TransactionFilter` and 4-card `MetricCard` grid
+- Replaced with `HeroSection` (period selector + balance + income/expenses cards)
+- Budget data remains in the `BudgetOverview` sidebar section
+
+**TransactionsList** — redesigned
+- Container: `--color-bg-surface` background, `0.5px solid rgba(255,255,255,0.06)` border, `border-radius: 12px`
+- Header: "Transactions" in Syne 600 15px left; pill tab switcher (All / Income / Expense) in `rgba(255,255,255,0.04)` container with active teal pill; upload icon button + teal "Add" button right
+- Empty state: DM Mono 13px muted centred text
+
+**TransactionCells** — redesigned
+- Row hover: `rgba(255,255,255,0.03)` background + `inset 0 0 0 0.5px rgba(255,255,255,0.06)` box-shadow
+- Category icon: 38×38px square, `border-radius: 10px`, `background: {color}1a` tint
+- Merchant: Syne 500 13px `--color-text-primary`; Category: DM Mono 11px `--color-text-muted` below
+- Amount: DM Mono 700 13px — `#4DFFC3` with `+` prefix for income, `#FF4E7A` with `−` for expenses
+- Date: DM Mono 11px muted, right-aligned below amount
+- Delete button: fades in on row hover, turns red accent on hover
+
+**UserInput** — dropdown redesigned
+- Trigger: avatar (28px gradient circle + initials) + email (DM Mono 12px) + ChevronDown; `padding: 5px 10px`, `border-radius: 9px`; chevron rotates 180° on open via `transform 200ms ease`; button background lifts to `rgba(255,255,255,0.06)` while dropdown is open
+- Dropdown: `background: #131B2E`, `border: 0.5px solid rgba(255,255,255,0.10)`, `border-radius: 12px`, `width: 220px`, `top: calc(100% + 8px)`, `box-shadow: 0 16px 40px rgba(0,0,0,0.5)`
+- Header: display name derived from email (e.g. `benga.olasebikan@…` → "Benga Olasebikan") in Syne 700 13px + email in DM Mono 11px muted; separated by `0.5px` border
+- Menu section: `DropdownItem` rows (15px Lucide icon + 12px Syne label) — Settings & preferences (purple `#A78BFA` icon + text, purple tint hover), Edit profile (default), Notifications (default)
+- Divider: `0.5px solid rgba(255,255,255,0.07)` with vertical margin
+- Sign out section: red `#FF4E7A` icon + text, red tint hover; triggers `signOut()` from auth context
+- Outside-click close via `useRef` + `useEffect` `mousedown` listener
+
+**Routing (React Router v6/v7)**
+- `react-router-dom` installed; `<BrowserRouter>` wraps the app in `main.tsx`
+- Routes: `/` `/transactions` `/budgets` `/analytics` → Dashboard; `/settings` → SettingsPage; `*` redirects to `/`
+- `Navbar` uses `useLocation()` to derive the active nav item — `pathname === link.path` (Overview matches `/` exactly, others match their segment); no prop drilling
+- `Navbar` uses `useNavigate()` for nav link clicks
+- `UserInput` "Settings & preferences" item calls `useNavigate('/settings')` and closes the dropdown
+- `Layout` simplified — no tab state; Navbar is self-contained
+
+**Navbar — mobile drawer**
+- Center nav links hidden on mobile (`hidden lg:flex`); hamburger icon shown (`lg:hidden`)
+- `MobileDrawer` component: fixed overlay (`position: fixed`, `z-index: 201`) with backdrop blur, slides in from the left via `slideInFromLeft` animation
+- Drawer shows logo, all four nav links (active highlighted in teal), `0.5px` divider, then "Settings &amp; preferences" in purple using `useNavigate('/settings')`
+- Body scroll locked while drawer is open; closes on outside click or route change
+
+**SettingsPage (`src/components/settings/SettingsPage.tsx`)**
+- Breadcrumb "Dashboard › Settings" with clickable Dashboard link using `useNavigate('/')`
+- Page title "Settings &amp; preferences" in Syne 700 28px
+- 2×2 responsive grid (single column on mobile via `.settings-grid` media query)
+  - **Profile card** — display name (editable), email (read-only), currency selector
+  - **Notifications card** — four toggles (budget alerts, weekly digest, recurring reminders, security alerts) with animated teal/dark switch
+  - **Appearance card** — date format, week start, theme display
+  - **Security card** — current / new / confirm password inputs
+- All inputs: `0.5px` border, `rgba(255,255,255,0.03)` surface, teal focus ring; teal "Save changes" button with `scale(1.03)` hover
+
+**Right Sidebar** — redesigned
+- Dashboard right column wrapped in unified panel: `background: #0D1120`, `border-left: 0.5px solid rgba(255,255,255,0.06)`, `border-radius: 12px`
+- **SpendingChart** — removed `Card` wrapper; dark header with `0.5px` bottom border; 3px progress bars with `#1A2035` track; DM Mono amounts + percentages
+- **ChartItem** — 7px colored dot, Syne 500 name, DM Mono 11px percentage + 12px amount, 3px progress bar
+- **BudgetOverview** — removed `Card` wrapper; teal "Add" button in header; summary card (`rgba(255,255,255,0.03)` surface) showing monthly limit in Syne 700 30px + spent/remaining in DM Mono 11px muted; centered SVG donut chart (120×120px): `#1A2035` track + `#4DFFC3` arc fill + DM Mono 700 percentage label at center; budget list separated by `0.5px` divider
+- **Budget** — renamed `bgColor` → `color`; 7px colored dot; Syne 500 name; DM Mono 11px percentage right-aligned; 3px `#1A2035` track bar with colored fill; DM Mono 10px spent/remaining below
+
+---
 
 ### v1.0.0 — NestJS Migration & Design System
 

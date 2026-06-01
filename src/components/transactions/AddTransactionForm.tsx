@@ -51,6 +51,7 @@ const TransactionForm = ({ handleModalClose, selectedDate }: Props) => {
       onSuccess: async () => {
         await queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
         await queryClient.invalidateQueries({ queryKey: budgetQueries.all() })
+        await queryClient.invalidateQueries({ queryKey: budgetQueries.allWithSpent() })
         handleModalClose()
       },
       onError: (err) => {
@@ -103,9 +104,9 @@ const TransactionForm = ({ handleModalClose, selectedDate }: Props) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-5'>
-      <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
-        <div className='sm:col-span-2 space-y-4'>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '16px', alignItems: 'start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <Input
             label='Description'
             type='text'
@@ -114,18 +115,36 @@ const TransactionForm = ({ handleModalClose, selectedDate }: Props) => {
             value={description}
             onChange={descriptionChange}
           />
-          <label className='flex items-center gap-3 cursor-pointer w-fit'>
-            <div className='relative'>
-              <input
-                type='checkbox'
-                className='sr-only peer'
-                checked={recurring}
-                onChange={(e) => setRecurring(e.target.checked)}
+          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', width: 'fit-content' }}>
+            {/* Dark toggle switch */}
+            <span
+              onClick={() => setRecurring((v) => !v)}
+              style={{
+                position: 'relative',
+                display: 'inline-flex',
+                width: '36px',
+                height: '20px',
+                borderRadius: '99px',
+                background: recurring ? '#4DFFC3' : 'rgba(255,255,255,0.12)',
+                cursor: 'pointer',
+                transition: 'background 200ms ease',
+                flexShrink: 0,
+              }}
+            >
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '2px',
+                  left: recurring ? '18px' : '2px',
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  background: recurring ? '#0B0F1A' : 'rgba(255,255,255,0.5)',
+                  transition: 'left 200ms ease, background 200ms ease',
+                }}
               />
-              <div className='w-9 h-5 bg-slate-200 rounded-full peer peer-checked:bg-blue-600 transition-colors' />
-              <div className='absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4' />
-            </div>
-            <span className='text-sm font-medium text-slate-700'>
+            </span>
+            <span style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-primary)' }}>
               Recurring transaction
             </span>
           </label>
@@ -142,7 +161,7 @@ const TransactionForm = ({ handleModalClose, selectedDate }: Props) => {
         />
       </div>
 
-      <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
         <Select
           label='Type'
           options={['Income', 'Expense']}
@@ -166,7 +185,7 @@ const TransactionForm = ({ handleModalClose, selectedDate }: Props) => {
       </div>
 
       {recurring && (
-        <div className='grid grid-cols-2 gap-4 p-4 rounded-lg bg-blue-50 border border-blue-100'>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', padding: '16px', borderRadius: '10px', background: 'rgba(30,200,255,0.04)', border: '0.5px solid rgba(30,200,255,0.14)' }}>
           <Select
             label='Frequency'
             options={['Daily', 'Weekly', 'Monthly', 'Yearly']}
@@ -184,12 +203,12 @@ const TransactionForm = ({ handleModalClose, selectedDate }: Props) => {
       )}
 
       {submitError && (
-        <p className='text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2'>
-          {submitError}
-        </p>
+        <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(255,78,122,0.08)', border: '0.5px solid rgba(255,78,122,0.25)' }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#FF4E7A' }}>{submitError}</p>
+        </div>
       )}
 
-      <div className='flex justify-end gap-3 pt-2'>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingTop: '8px' }}>
         <Button type='button' variant='secondary' onClick={handleModalClose}>
           Cancel
         </Button>

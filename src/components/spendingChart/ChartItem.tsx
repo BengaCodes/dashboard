@@ -1,6 +1,6 @@
-import { formatAmount } from '../../utils/utils'
+import { useEffect, useRef, useState } from 'react'
+import { formatCurrency } from '../../utils/utils'
 import type { Category } from '../../types'
-import Progress from '../ui/Progress'
 
 interface ChartItemProps {
   data: {
@@ -10,32 +10,98 @@ interface ChartItemProps {
   }
 }
 
-const ChartItem = ({ data }: ChartItemProps) => (
-  <div className='space-y-1.5'>
-    <div className='flex items-center justify-between'>
-      <div className='flex items-center gap-2'>
+const ChartItem = ({ data }: ChartItemProps) => {
+  const pct = Math.min(100, Math.max(0, data.percentage))
+
+  const [animPct, setAnimPct] = useState(0)
+  const frameRef = useRef<number>(0)
+  useEffect(() => {
+    cancelAnimationFrame(frameRef.current)
+    frameRef.current = requestAnimationFrame(() => setAnimPct(pct))
+    return () => cancelAnimationFrame(frameRef.current)
+  }, [pct])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+
+      {/* Label row */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div
+            style={{
+              width: '7px',
+              height: '7px',
+              borderRadius: '50%',
+              background: data.category.color,
+              flexShrink: 0,
+            }}
+          />
+          <span
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 500,
+              fontSize: '13px',
+              color: 'var(--color-text-primary)',
+            }}
+          >
+            {data.category.name}
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            {pct.toFixed(0)}%
+          </span>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 700,
+              fontSize: '12px',
+              color: 'var(--color-text-primary)',
+              minWidth: '56px',
+              textAlign: 'right',
+            }}
+          >
+            {formatCurrency(data.amount)}
+          </span>
+        </div>
+      </div>
+
+      {/* 3px progress bar */}
+      <div
+        style={{
+          width: '100%',
+          height: '3px',
+          borderRadius: '99px',
+          background: '#1A2035',
+          overflow: 'hidden',
+        }}
+      >
         <div
-          className='w-2.5 h-2.5 rounded-full shrink-0'
-          style={{ backgroundColor: data.category.color }}
+          style={{
+            height: '3px',
+            width: `${animPct}%`,
+            background: data.category.color,
+            borderRadius: '99px',
+            transition: 'width 0.4s ease-out',
+          }}
         />
-        <span className='text-sm font-medium text-slate-700'>
-          {data.category.name}
-        </span>
       </div>
-      <div className='flex items-center gap-3'>
-        <span className='text-xs text-slate-400'>
-          {data.percentage.toFixed(0)}%
-        </span>
-        <span className='text-sm font-semibold text-slate-800 min-w-16 text-right'>
-          {formatAmount(data.amount)}
-        </span>
-      </div>
+
     </div>
-    <Progress
-      value={data.percentage}
-      color={data.category.color}
-    />
-  </div>
-)
+  )
+}
 
 export default ChartItem

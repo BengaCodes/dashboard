@@ -1,76 +1,199 @@
-import * as Icons from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { formatAmount, formatDate } from '../../utils/utils'
 import { Icon } from '../common/Icons'
 import type { TransactionWithCategory } from '../../types'
-import IconButton from '../common/IconButton'
 import Modal from '../modal/Modal'
 import Button from '../common/Button'
 
 type TransactionCellProps = {
   transaction: TransactionWithCategory
   handleDelete: () => void
+  index: number
 }
 
-const TransactionCell = ({ transaction, handleDelete }: TransactionCellProps) => {
+const TransactionCell = ({ transaction, handleDelete, index }: TransactionCellProps) => {
+  const [isHovered, setIsHovered] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const navigate = useNavigate()
   const isIncome = transaction.type === 'income'
   const category = transaction.categories
 
   return (
     <>
-      <div className='px-5 py-3.5 hover:bg-slate-50 transition-colors'>
-        <div className='flex items-center gap-4'>
+      <div
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          padding: '12px 20px',
+          background: isHovered ? 'rgba(255,255,255,0.03)' : 'transparent',
+          boxShadow: isHovered ? 'inset 0 0 0 0.5px rgba(255,255,255,0.10)' : 'none',
+          transition: 'background 150ms ease, box-shadow 150ms ease',
+          animation: 'rowFadeIn 200ms ease both',
+          animationDelay: `${Math.min(index, 12) * 50}ms`,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+
+          {/* Category icon square */}
           <div
-            className='shrink-0 w-10 h-10 rounded-xl flex items-center justify-center'
-            style={{ backgroundColor: `${category?.color}20` }}
+            style={{
+              flexShrink: 0,
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: `${category?.color}1a`,
+            }}
           >
             <Icon
               iconName={category?.icon || 'DollarSign'}
-              className='w-5 h-5'
+              size={16}
               style={{ color: category?.color }}
             />
           </div>
 
-          <div className='flex-1 min-w-0'>
-            <p className='text-sm font-medium text-slate-900 truncate'>
+          {/* Merchant name + category label */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontWeight: 500,
+                fontSize: '13px',
+                color: 'var(--color-text-primary)',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {transaction.description}
             </p>
-            <p className='text-xs text-slate-500 mt-0.5'>
-              {category?.name || 'Uncategorised'}
-              <span className='mx-1.5 text-slate-300'>•</span>
-              {formatDate(transaction.date)}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                marginTop: '3px',
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '11px',
+                  color: 'var(--color-text-muted)',
+                }}
+              >
+                {category?.name || 'Uncategorised'}
+              </span>
               {transaction.recurring && (
                 <>
-                  <span className='mx-1.5 text-slate-300'>•</span>
-                  <span className='text-blue-500 font-medium'>Recurring</span>
+                  <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: '10px' }}>
+                    ●
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '11px',
+                      color: 'var(--color-accent-blue)',
+                    }}
+                  >
+                    Recurring
+                  </span>
                 </>
               )}
+            </div>
+          </div>
+
+          {/* Amount + date */}
+          <div style={{ flexShrink: 0, textAlign: 'right' }}>
+            <p
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 700,
+                fontSize: '13px',
+                color: isIncome ? '#4DFFC3' : '#FF4E7A',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {formatAmount(transaction.amount, transaction.type)}
+            </p>
+            <p
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '11px',
+                color: 'var(--color-text-muted)',
+                marginTop: '3px',
+              }}
+            >
+              {formatDate(transaction.date)}
             </p>
           </div>
 
-          <div className='flex items-center gap-3 shrink-0'>
-            <div className='flex items-center gap-1'>
-              <span
-                className={`text-sm font-semibold ${isIncome ? 'text-emerald-600' : 'text-slate-800'}`}
-              >
-                {formatAmount(transaction.amount, transaction.type)}
-              </span>
-              {isIncome ? (
-                <Icons.ArrowUpRight size={14} className='text-emerald-500' />
-              ) : (
-                <Icons.ArrowDownRight size={14} className='text-red-400' />
-              )}
-            </div>
-            <IconButton
-              icon={Icons.Trash2}
-              variant='ghost'
-              size='sm'
-              label='Delete transaction'
-              onClick={() => setShowDeleteModal(true)}
-              className='text-slate-400 hover:text-red-600 hover:bg-red-50'
-            />
-          </div>
+          {/* Edit button — fades in on row hover */}
+          <button
+            onClick={() => navigate('/settings', { state: { transaction } })}
+            aria-label='Edit transaction'
+            style={{
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '28px',
+              height: '28px',
+              borderRadius: '6px',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              opacity: isHovered ? 1 : 0,
+              transition: 'opacity 150ms ease, background 150ms ease, color 150ms ease',
+              color: 'var(--color-text-muted)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(30,200,255,0.10)'
+              e.currentTarget.style.color = 'var(--color-accent-blue)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = 'var(--color-text-muted)'
+            }}
+          >
+            <Pencil size={13} />
+          </button>
+
+          {/* Delete button — fades in on row hover */}
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            aria-label='Delete transaction'
+            style={{
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '28px',
+              height: '28px',
+              borderRadius: '6px',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              opacity: isHovered ? 1 : 0,
+              transition: 'opacity 150ms ease, background 150ms ease, color 150ms ease',
+              color: 'var(--color-text-muted)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,78,122,0.10)'
+              e.currentTarget.style.color = '#FF4E7A'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = 'var(--color-text-muted)'
+            }}
+          >
+            <Trash2 size={13} />
+          </button>
+
         </div>
       </div>
 
@@ -89,10 +212,7 @@ const TransactionCell = ({ transaction, handleDelete }: TransactionCellProps) =>
             ? This cannot be undone.
           </p>
           <div className='flex justify-end gap-3'>
-            <Button
-              variant='secondary'
-              onClick={() => setShowDeleteModal(false)}
-            >
+            <Button variant='secondary' onClick={() => setShowDeleteModal(false)}>
               Cancel
             </Button>
             <Button

@@ -1,7 +1,6 @@
-import { formatAmount } from '../../utils/utils'
+import { formatCurrency } from '../../utils/utils'
 import type { Category } from '../../types'
 import ChartItem from './ChartItem'
-import Card from '../ui/Card'
 
 interface SpendingChartProps {
   data: {
@@ -15,35 +14,90 @@ const SpendingChart = ({ data }: SpendingChartProps) => {
   const total = data.reduce((acc, cur) => acc + cur.amount, 0)
 
   return (
-    <Card padding='none' className='overflow-hidden'>
-      <div className='px-5 py-4 border-b border-slate-100'>
-        <h2 className='text-base font-semibold text-slate-900'>
+    <div>
+      {/* Header */}
+      <div
+        style={{
+          padding: '20px 20px 16px',
+          borderBottom: '0.5px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <h2
+          style={{
+            fontFamily: 'var(--font-ui)',
+            fontWeight: 600,
+            fontSize: '15px',
+            color: 'var(--color-text-primary)',
+          }}
+        >
           Spending by Category
         </h2>
       </div>
 
-      <div className='px-5 py-4 space-y-4 max-h-80 overflow-y-auto'>
+      {/* Body */}
+      <div
+        style={{
+          padding: '16px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          maxHeight: '280px',
+          overflowY: 'auto',
+        }}
+      >
         {data.length === 0 ? (
-          <div className='py-8 text-center'>
-            <p className='text-sm text-slate-400'>No spending this month</p>
+          <div style={{ padding: '32px 0', textAlign: 'center' }}>
+            <p
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '13px',
+                color: 'var(--color-text-muted)',
+              }}
+            >
+              No spending this month
+            </p>
           </div>
         ) : (
           <>
             {data.map((item, i) => (
               <ChartItem key={item.category.id ?? i} data={item} />
             ))}
-            <div className='pt-3 mt-3 border-t border-slate-100 flex items-center justify-between'>
-              <span className='text-sm font-medium text-slate-600'>
+
+            {/* Total */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingTop: '12px',
+                borderTop: '0.5px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: 'var(--font-ui)',
+                  fontWeight: 500,
+                  fontSize: '13px',
+                  color: 'var(--color-text-muted)',
+                }}
+              >
                 Total spending
               </span>
-              <span className='text-sm font-bold text-slate-900'>
-                {formatAmount(total)}
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  color: 'var(--color-text-primary)',
+                }}
+              >
+                {formatCurrency(total)}
               </span>
             </div>
           </>
         )}
       </div>
-    </Card>
+    </div>
   )
 }
 

@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { FilterTransactionsDto } from './dto/filter-transactions.dto';
+import type { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -17,6 +18,9 @@ export class TransactionsService {
       .createQueryBuilder('t')
       .leftJoinAndSelect('t.categories', 'category')
       .where('t.user_id = :userId', { userId })
+      // @DeleteDateColumn causes TypeORM to add this automatically, but we
+      // include it explicitly for clarity and QueryBuilder safety.
+      .andWhere('t.deleted_at IS NULL')
       .orderBy('t.date', filters.order === 'asc' ? 'ASC' : 'DESC')
       .addOrderBy('t.id', 'DESC');
 
@@ -55,10 +59,31 @@ export class TransactionsService {
       .createQueryBuilder('t')
       .leftJoinAndSelect('t.categories', 'category')
       .where('t.id IN (:...ids)', { ids })
+      .andWhere('t.deleted_at IS NULL')
       .getMany();
   }
 
+  async update(id: number, userId: string, dto: UpdateTransactionDto): Promise<Transaction> {
+    const existing = await this.repo.findOne({
+      where: { id, user_id: userId },
+    });
+    if (!existing) {
+      throw new NotFoundException(`Transaction ${id} not found`);
+    }
+
+    await this.repo.update({ id, user_id: userId }, dto);
+
+    return this.repo.findOne({
+      where: { id },
+      relations: ['categories'],
+    });
+  }
+
+  // Soft delete — sets deleted_at rather than removing the row.
   async delete(id: number, userId: string): Promise<void> {
-    await this.repo.delete({ id, user_id: userId });
+    const result = await this.repo.softDelete({ id, user_id: userId });
+    if (!result.affected) {
+      throw new NotFoundException(`Transaction ${id} not found`);
+    }
   }
 }

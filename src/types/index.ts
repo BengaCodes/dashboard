@@ -45,3 +45,14 @@ export type TransactionInsert = Omit<Transaction, 'id'>
 
 export type Frequency = 'daily' | 'weekly' | 'monthly' | 'yearly'
 export type TransactionType = 'income' | 'expense'
+
+export type Preferences = {
+  user_id?:               string
+  display_name:           string | null
+  currency:               string
+  month_start_day:        number
+  notify_budget_alerts:   boolean
+  notify_monthly_summary: boolean
+  dark_mode:              boolean
+  updated_at?:            string
+}

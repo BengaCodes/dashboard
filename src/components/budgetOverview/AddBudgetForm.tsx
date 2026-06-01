@@ -10,11 +10,16 @@ import { budgetQueries, categoryQueries } from '../../utils/dataQuery'
 
 const PERIODS = ['Monthly', 'Daily', 'Fortnightly', 'Yearly']
 
-const AddBudgetForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
+const AddBudgetForm = ({
+  handleModalClose
+}: {
+  handleModalClose: () => void
+}) => {
   const [submitError, setSubmitError] = useState('')
   const { value: amount, handleChange: amountChange } = useInput('')
   const { value: period, handleChange: periodChange } = useInput('monthly')
-  const { value: category, handleChange: categoryChange } = useInput('select category')
+  const { value: category, handleChange: categoryChange } =
+    useInput('select category')
 
   const queryClient = useQueryClient()
   const categories = queryClient.getQueryData<Category[]>(categoryQueries.all())
@@ -22,18 +27,22 @@ const AddBudgetForm = ({ handleModalClose }: { handleModalClose: () => void }) =
   const { mutation } = useMutationQuery({
     mutationFn: budgetQueries.addBudget,
     options: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: budgetQueries.all() })
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: budgetQueries.all() })
+        await queryClient.invalidateQueries({ queryKey: budgetQueries.allWithSpent() })
         handleModalClose()
       },
       onError: (err) => {
-        setSubmitError(err instanceof Error ? err.message : 'Failed to add budget')
+        setSubmitError(
+          err instanceof Error ? err.message : 'Failed to add budget'
+        )
       }
     }
   })
 
   const categoryOptions = useMemo(
-    () => (categories ?? []).filter((c) => c.type === 'expense').map((c) => c.name),
+    () =>
+      (categories ?? []).filter((c) => c.type === 'expense').map((c) => c.name),
     [categories]
   )
 
@@ -55,7 +64,7 @@ const AddBudgetForm = ({ handleModalClose }: { handleModalClose: () => void }) =
 
     const budget: Omit<Budget, 'id' | 'created_at'> = {
       amount: Number(amount),
-      period: String(period),
+      period: String(period).charAt(0).toUpperCase() + String(period).slice(1),
       category_id: categoryId ?? null
     }
 
@@ -63,7 +72,7 @@ const AddBudgetForm = ({ handleModalClose }: { handleModalClose: () => void }) =
   }
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-5'>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <Input
         label='Amount (£)'
         type='number'
@@ -90,12 +99,12 @@ const AddBudgetForm = ({ handleModalClose }: { handleModalClose: () => void }) =
       />
 
       {submitError && (
-        <p className='text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2'>
-          {submitError}
-        </p>
+        <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(255,78,122,0.08)', border: '0.5px solid rgba(255,78,122,0.25)' }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#FF4E7A' }}>{submitError}</p>
+        </div>
       )}
 
-      <div className='flex justify-end gap-3 pt-2'>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingTop: '8px' }}>
         <Button type='button' variant='secondary' onClick={handleModalClose}>
           Cancel
         </Button>

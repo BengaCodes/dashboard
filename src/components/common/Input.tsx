@@ -10,27 +10,62 @@ const Input = ({ label, error, hint, id, ...props }: InputProps) => {
   const inputId = id || label.toLowerCase().replace(/\s+/g, '-')
 
   return (
-    <div className='flex flex-col gap-1.5'>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
       <label
         htmlFor={inputId}
-        className='text-xs font-semibold uppercase tracking-wide text-slate-600'
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '10px',
+          fontWeight: 500,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: 'var(--color-text-muted)',
+        }}
       >
         {label}
-        {props.required && <span className='ml-1 text-red-500'>*</span>}
+        {props.required && (
+          <span style={{ marginLeft: '4px', color: '#FF4E7A' }}>*</span>
+        )}
       </label>
       <input
         id={inputId}
-        className={`
-          w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-slate-900
-          placeholder:text-slate-400 transition-colors
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-          disabled:bg-slate-50 disabled:text-slate-400
-          ${error ? 'border-red-400 focus:ring-red-400' : 'border-slate-300 hover:border-slate-400'}
-        `}
+        style={{
+          width: '100%',
+          padding: '9px 12px',
+          borderRadius: '8px',
+          border: error
+            ? '0.5px solid rgba(255,78,122,0.5)'
+            : '0.5px solid rgba(255,255,255,0.08)',
+          background: '#0D1120',
+          color: 'var(--color-text-primary)',
+          fontFamily: 'var(--font-mono)',
+          fontSize: '13px',
+          outline: 'none',
+          transition: 'border-color 150ms ease',
+          colorScheme: 'dark',
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = error
+            ? 'rgba(255,78,122,0.7)'
+            : 'rgba(77,255,195,0.4)'
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = error
+            ? 'rgba(255,78,122,0.5)'
+            : 'rgba(255,255,255,0.08)'
+        }}
         {...props}
       />
-      {error && <p className='text-xs text-red-600'>{error}</p>}
-      {hint && !error && <p className='text-xs text-slate-500'>{hint}</p>}
+      {error && (
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#FF4E7A' }}>
+          {error}
+        </p>
+      )}
+      {hint && !error && (
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-text-muted)' }}>
+          {hint}
+        </p>
+      )}
     </div>
   )
 }

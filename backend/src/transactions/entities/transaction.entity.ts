@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
 
@@ -12,7 +13,7 @@ export class Transaction {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', default: () => 'CURRENT_DATE' })
   date: string;
 
   @Column()
@@ -30,6 +31,9 @@ export class Transaction {
   @Column({ nullable: true })
   user_id: string;
 
+  @Column({ type: 'text', nullable: true })
+  notes: string | null;
+
   @Column({ default: false })
   recurring: boolean;
 
@@ -44,6 +48,11 @@ export class Transaction {
 
   @Column({ type: 'varchar', nullable: true })
   parent_recurring_id: string | null;
+
+  // Soft-delete timestamp — TypeORM excludes rows where this is set in all
+  // standard find() / findOne() / QueryBuilder queries automatically.
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deleted_at: Date | null;
 
   @ManyToOne(() => Category, { nullable: true, eager: true })
   @JoinColumn({ name: 'category_id' })

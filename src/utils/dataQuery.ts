@@ -12,11 +12,13 @@ export const transactionQueries = {
   ],
 
   getTransactions: () => transactionsApi.getAll(),
-  deleteTransaction: (id: number) => transactionsApi.delete(id),
   addTransaction: (transaction: Omit<Transaction, 'id'>) =>
     transactionsApi.create(transaction),
   bulkAddTransactions: (transactions: Omit<Transaction, 'id'>[]) =>
-    transactionsApi.bulkCreate(transactions)
+    transactionsApi.bulkCreate(transactions),
+  updateTransaction: ({ id, data }: { id: number; data: Partial<Omit<Transaction, 'id'>> }) =>
+    transactionsApi.update(id, data),
+  deleteTransaction: (id: number) => transactionsApi.delete(id),
 }
 
 export const categoryQueries = {
@@ -28,6 +30,7 @@ export const categoryQueries = {
 export const budgetQueries = {
   all: () => ['budgets'],
   list: () => [...budgetQueries.all(), 'list'],
+  allWithSpent: () => ['budgetWithSpent'],
   withSpentBudgets: (userId: string, month: string) => [
     'budgetWithSpent',
     userId,

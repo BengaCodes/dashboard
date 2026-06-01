@@ -30,5 +30,8 @@ export const transactionsApi = {
   bulkCreate: (transactions: Omit<Transaction, 'id'>[]) =>
     api.post<TransactionWithCategory[]>('/transactions/bulk', { transactions }),
 
+  update: (id: number, data: Partial<Omit<Transaction, 'id'>>) =>
+    api.put<TransactionWithCategory>(`/transactions/${id}`, data),
+
   delete: (id: number) => api.delete<void>(`/transactions/${id}`),
 }

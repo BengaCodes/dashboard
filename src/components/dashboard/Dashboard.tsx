@@ -3,15 +3,13 @@ import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import {
   calculateMetrics,
   getSpendingByCategory,
-  metricsList
 } from '../../utils/utils'
-import MetricCard from '../metricCard/MetricCard'
+import HeroSection from '../hero/HeroSection'
 import TransactionsList from '../transactions/TransactionsList'
 import SpendingChart from '../spendingChart/SpendingChart'
 import BudgetOverview from '../budgetOverview/BudgetOverview'
 import { budgetQueries, categoryQueries, transactionQueries } from '../../utils/dataQuery'
 import type { BudgetWithCategory, Category, TransactionWithCategory } from '../../types'
-import TransactionFilter from '../filter/TransactionFilter'
 import { useAuth } from '../../state/useAuth'
 import { SkeletonCard } from '../ui/Skeleton'
 
@@ -57,20 +55,15 @@ const Dashboard = () => {
     [categories, transactions, selectedDate]
   )
 
-  const cards = useMemo(() => metricsList(metrics), [metrics])
-
   return (
-    <div className='space-y-6'>
-      <TransactionFilter
+    <div className='space-y-8'>
+      <HeroSection
         selectedDate={selectedDate}
         onChangeDate={setSelectedDate}
+        income={metrics.totalIncome}
+        expenses={metrics.totalExpenses}
+        balance={metrics.balance}
       />
-
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-        {cards.map((m) => (
-          <MetricCard key={m.title} {...m} />
-        ))}
-      </div>
 
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
         <div className='lg:col-span-2'>
@@ -79,7 +72,16 @@ const Dashboard = () => {
             transactions={filteredTransactions}
           />
         </div>
-        <div className='flex flex-col gap-6'>
+        {/* Right sidebar panel */}
+        <div
+          style={{
+            background: '#0D1120',
+            borderLeft: '0.5px solid rgba(255,255,255,0.06)',
+            borderRadius: '12px',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           <SpendingChart data={spendingData} />
           <Suspense fallback={<SkeletonCard />}>
             <BudgetOverview budgets={budgetWithSpent} />

@@ -6,83 +6,62 @@ const FintraxxLogo = ({ className = '' }: FintraxxLogoProps) => {
   return (
     <div className={`flex items-center gap-3 ${className}`.trim()}>
       <svg
-        width='44'
-        height='44'
-        viewBox='0 0 44 44'
-        role='img'
-        aria-label='Fintraxx logo icon'
+        width="34"
+        height="34"
+        viewBox="0 0 34 34"
+        role="img"
+        aria-label="Fintraxx logo"
+        style={{ flexShrink: 0 }}
       >
         <defs>
-          <linearGradient
-            id='fintraxx-bg'
-            x1='5'
-            y1='5'
-            x2='39'
-            y2='39'
-            gradientUnits='userSpaceOnUse'
-          >
-            <stop offset='0' stopColor='#0f172a' />
-            <stop offset='1' stopColor='#1e3a8a' />
-          </linearGradient>
-          <linearGradient
-            id='fintraxx-line'
-            x1='10'
-            y1='30'
-            x2='34'
-            y2='12'
-            gradientUnits='userSpaceOnUse'
-          >
-            <stop offset='0' stopColor='#22d3ee' />
-            <stop offset='1' stopColor='#34d399' />
+          <linearGradient id="logo-bg" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#4DFFC3" />
+            <stop offset="1" stopColor="#1EC8FF" />
           </linearGradient>
         </defs>
-
-        <rect
-          x='2'
-          y='2'
-          width='40'
-          height='40'
-          rx='12'
-          fill='url(#fintraxx-bg)'
-        />
-
-        <rect
-          x='10'
-          y='24'
-          width='4'
-          height='10'
-          rx='2'
-          fill='#cbd5e1'
-          opacity='0.9'
-        />
-        <rect
-          x='17'
-          y='19'
-          width='4'
-          height='15'
-          rx='2'
-          fill='#cbd5e1'
-          opacity='0.95'
-        />
-        <rect x='24' y='14' width='4' height='20' rx='2' fill='#e2e8f0' />
-
+        <rect width="34" height="34" rx="8" fill="url(#logo-bg)" />
+        {/* bar chart bars */}
+        <rect x="7"  y="20" width="4" height="8"  rx="1.5" fill="rgba(11,15,26,0.55)" />
+        <rect x="13" y="15" width="4" height="13" rx="1.5" fill="rgba(11,15,26,0.7)"  />
+        <rect x="19" y="10" width="4" height="18" rx="1.5" fill="rgba(11,15,26,0.85)" />
+        {/* trend line */}
         <path
-          d='M10 28.5 L19 22.5 L25.5 25.5 L33.5 14.5'
-          stroke='url(#fintraxx-line)'
-          strokeWidth='2.7'
-          strokeLinecap='round'
-          strokeLinejoin='round'
-          fill='none'
+          d="M8 22.5 L15 18 L21 20.5 L27 11"
+          stroke="#0B0F1A"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="0.9"
         />
-
-        <circle cx='33.5' cy='14.5' r='2.2' fill='#34d399' />
+        <circle cx="27" cy="11" r="2" fill="#0B0F1A" opacity="0.9" />
       </svg>
 
-      <div className='leading-none'>
-        <span className='block text-[30px] font-extrabold tracking-tight text-gray-900'>
+      <div style={{ lineHeight: 1 }}>
+        <span
+          style={{
+            display: 'block',
+            fontFamily: 'var(--font-ui)',
+            fontWeight: 700,
+            fontSize: '18px',
+            letterSpacing: '-0.01em',
+            color: 'var(--color-text-primary)',
+          }}
+        >
           FinTraxx
         </span>
-        <span className='block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500'>
+        <span
+          style={{
+            display: 'block',
+            fontFamily: 'var(--font-mono)',
+            fontWeight: 400,
+            fontSize: '10px',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-muted)',
+            marginTop: '3px',
+          }}
+        >
           Finance Tracker
         </span>
       </div>

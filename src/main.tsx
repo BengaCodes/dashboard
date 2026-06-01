@@ -1,16 +1,19 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
-import Layout from './components/layout/Layout.tsx'
 import { AuthProvider } from './state/AuthContext.tsx'
+import { PreferencesProvider } from './state/PreferencesContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthProvider>
-      <Layout>
-        <App />
-      </Layout>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <PreferencesProvider>
+          <App />
+        </PreferencesProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </StrictMode>
 )
