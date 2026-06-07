@@ -41,7 +41,12 @@ const AuthSection = ({
         await signIn(email, password)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      const raw = err instanceof Error ? err.message : 'Something went wrong'
+      // Translate network-level failures into something human-readable
+      const friendly = /fetch|network|Failed to fetch/i.test(raw)
+        ? 'Unable to connect. Please check your internet connection and try again.'
+        : raw
+      setError(friendly)
     } finally {
       setPending(false)
     }
@@ -117,8 +122,14 @@ const AuthSection = ({
             )}
 
             {error && (
-              <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(255,78,122,0.10)', border: '0.5px solid rgba(255,78,122,0.25)' }}>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#FF4E7A' }}>{error}</p>
+              <div style={{
+                display: 'flex', alignItems: 'flex-start', gap: '10px',
+                padding: '12px 14px', borderRadius: '9px',
+                background: 'rgba(255,78,122,0.10)',
+                border: '1px solid rgba(255,78,122,0.35)',
+              }}>
+                <span style={{ color: '#FF4E7A', fontSize: '15px', lineHeight: 1, flexShrink: 0, marginTop: '1px' }}>✕</span>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#FF4E7A', lineHeight: 1.5 }}>{error}</p>
               </div>
             )}
 

@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import useMutationQuery from '../../hooks/api/useMutationQuery'
 import type { TransactionWithCategory } from '../../types'
 import { budgetQueries, transactionQueries } from '../../utils/dataQuery'
+import { transactionsApi } from '../../api/transactions.api'
 import TransactionCell from './TransactionCells'
 import Modal from '../modal/Modal'
 import TransactionForm from './AddTransactionForm'
@@ -19,9 +20,10 @@ const TransactionsList = ({
   transactions: TransactionWithCategory[]
   selectedDate: Date
 }) => {
-  const [openAdd, setOpenAdd] = useState(false)
-  const [openUpload, setOpenUpload] = useState(false)
-  const [filterType, setFilterType] = useState<(typeof FILTER_OPTIONS)[number]>('All')
+  const [openAdd,       setOpenAdd]       = useState(false)
+  const [openUpload,    setOpenUpload]    = useState(false)
+  const [filterType,    setFilterType]    = useState<(typeof FILTER_OPTIONS)[number]>('All')
+  const [confirmDelete, setConfirmDelete] = useState<TransactionWithCategory | null>(null)
 
   const queryClient = useQueryClient()
 
@@ -30,16 +32,29 @@ const TransactionsList = ({
     return transactions.filter((t) => t.type === filterType.toLowerCase())
   }, [transactions, filterType])
 
+  const invalidate = async () => {
+    await queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
+    await queryClient.invalidateQueries({ queryKey: budgetQueries.all() })
+    await queryClient.invalidateQueries({ queryKey: budgetQueries.allWithSpent() })
+  }
+
   const { mutation: deleteMutation } = useMutationQuery({
     mutationFn: transactionQueries.deleteTransaction,
-    options: {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
-        await queryClient.invalidateQueries({ queryKey: budgetQueries.all() })
-        await queryClient.invalidateQueries({ queryKey: budgetQueries.allWithSpent() })
-      }
-    }
+    options: { onSuccess: invalidate },
   })
+
+  const { mutation: deleteAllMutation } = useMutationQuery({
+    mutationFn: (id: number) => transactionsApi.deleteAllRecurring(id),
+    options: { onSuccess: invalidate },
+  })
+
+  const handleDeleteClick = (tr: TransactionWithCategory) => {
+    if (tr.recurring) {
+      setConfirmDelete(tr)
+    } else {
+      deleteMutation.mutate(tr.id)
+    }
+  }
 
   return (
     <>
@@ -199,12 +214,80 @@ const TransactionsList = ({
                 key={`${filterType}-${tr.id}`}
                 index={index}
                 transaction={tr}
-                handleDelete={() => deleteMutation.mutate(tr.id)}
+                handleDelete={() => handleDeleteClick(tr)}
               />
             ))
           )}
         </div>
       </div>
+
+      {/* ── Recurring delete confirmation ──────────────── */}
+      <Modal
+        title='Delete recurring transaction'
+        isOpen={confirmDelete !== null}
+        onClose={() => setConfirmDelete(null)}
+      >
+        {confirmDelete && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
+              <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
+                {confirmDelete.description}
+              </span>{' '}
+              is a recurring transaction. What would you like to delete?
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {/* Delete just this one */}
+              <button
+                onClick={() => {
+                  deleteMutation.mutate(confirmDelete.id)
+                  setConfirmDelete(null)
+                }}
+                style={{
+                  width: '100%', padding: '11px 16px', borderRadius: '10px',
+                  border: '0.5px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.04)',
+                  color: 'var(--color-text-primary)',
+                  fontFamily: 'var(--font-ui)', fontWeight: 500, fontSize: '14px',
+                  cursor: 'pointer', textAlign: 'left',
+                  transition: 'background 150ms ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+              >
+                Delete this entry only
+                <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                  Removes only this occurrence
+                </span>
+              </button>
+
+              {/* Delete all recurring */}
+              <button
+                onClick={() => {
+                  deleteAllMutation.mutate(confirmDelete.id)
+                  setConfirmDelete(null)
+                }}
+                style={{
+                  width: '100%', padding: '11px 16px', borderRadius: '10px',
+                  border: '0.5px solid rgba(255,78,122,0.3)',
+                  background: 'rgba(255,78,122,0.06)',
+                  color: '#FF4E7A',
+                  fontFamily: 'var(--font-ui)', fontWeight: 500, fontSize: '14px',
+                  cursor: 'pointer', textAlign: 'left',
+                  transition: 'background 150ms ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,78,122,0.12)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,78,122,0.06)' }}
+              >
+                Delete all recurring entries
+                <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'rgba(255,78,122,0.6)', marginTop: '2px' }}>
+                  Removes this and all future occurrences
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       <Modal
         title='Add Transaction'

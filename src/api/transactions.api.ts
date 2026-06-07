@@ -34,4 +34,8 @@ export const transactionsApi = {
     api.put<TransactionWithCategory>(`/transactions/${id}`, data),
 
   delete: (id: number) => api.delete<void>(`/transactions/${id}`),
+
+  // Deletes the transaction and all future recurring instances sharing the same parent
+  deleteAllRecurring: (id: number) =>
+    api.delete<void>(`/transactions/${id}?deleteAll=true`),
 }
