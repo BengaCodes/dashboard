@@ -36,6 +36,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem(TOKEN_KEY, token)
       localStorage.setItem(USER_KEY, JSON.stringify(user))
       setUser(user)
+    } catch (err) {
+      // Explicitly rethrow so form components can show the error message
+      throw err
     } finally {
       setLoading(false)
     }

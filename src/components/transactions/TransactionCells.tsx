@@ -1,7 +1,7 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { formatAmount, formatDate } from '../../utils/utils'
+import { formatAmount, formatDate } from '../../utils/formatters'
 import { Icon } from '../common/Icons'
 import type { TransactionWithCategory } from '../../types'
 import Modal from '../modal/Modal'
@@ -10,10 +10,11 @@ import Button from '../common/Button'
 type TransactionCellProps = {
   transaction: TransactionWithCategory
   handleDelete: () => void
+  handleDeleteAll?: () => void
   index: number
 }
 
-const TransactionCell = ({ transaction, handleDelete, index }: TransactionCellProps) => {
+const TransactionCell = ({ transaction, handleDelete, handleDeleteAll, index }: TransactionCellProps) => {
   const [isHovered, setIsHovered] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const navigate = useNavigate()
@@ -203,18 +204,36 @@ const TransactionCell = ({ transaction, handleDelete, index }: TransactionCellPr
         onClose={() => setShowDeleteModal(false)}
         size='sm'
       >
-        <div className='space-y-4'>
-          <p className='text-sm text-slate-600'>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
             Are you sure you want to delete{' '}
-            <span className='font-medium text-slate-900'>
+            <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
               "{transaction.description}"
             </span>
             ? This cannot be undone.
           </p>
-          <div className='flex justify-end gap-3'>
+
+          {transaction.recurring && handleDeleteAll && (
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--color-accent-blue)', lineHeight: 1.5 }}>
+              This is a recurring transaction. You can delete just this instance or all future occurrences.
+            </p>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
             <Button variant='secondary' onClick={() => setShowDeleteModal(false)}>
               Cancel
             </Button>
+            {transaction.recurring && handleDeleteAll && (
+              <Button
+                variant='danger'
+                onClick={() => {
+                  handleDeleteAll()
+                  setShowDeleteModal(false)
+                }}
+              >
+                Delete all future
+              </Button>
+            )}
             <Button
               variant='danger'
               onClick={() => {
@@ -222,7 +241,7 @@ const TransactionCell = ({ transaction, handleDelete, index }: TransactionCellPr
                 setShowDeleteModal(false)
               }}
             >
-              Delete
+              {transaction.recurring ? 'Delete this only' : 'Delete'}
             </Button>
           </div>
         </div>

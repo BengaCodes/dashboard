@@ -1,7 +1,8 @@
 import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { formatCurrency } from '../../utils/utils'
+import { useState } from 'react'
+import { formatCurrency } from '../../utils/formatters'
+import useCountUp from '../../hooks/common/useCountUp'
 
 const MONTHS = [
   'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
@@ -11,37 +12,6 @@ const MONTHS = [
 const CURRENT_YEAR = new Date().getFullYear()
 const MIN_YEAR = CURRENT_YEAR - 4
 const MAX_YEAR = CURRENT_YEAR
-
-// ── Count-up hook ────────────────────────────────────────────
-// Animates a number from 0 → target using requestAnimationFrame.
-// Re-runs whenever target changes (e.g. on month navigation).
-
-function useCountUp(target: number, duration = 650): number {
-  const [current, setCurrent] = useState(0)
-  const frameRef = useRef<number>(0)
-
-  useEffect(() => {
-    const start = performance.now()
-    cancelAnimationFrame(frameRef.current)
-
-    const tick = (now: number) => {
-      const t = Math.min((now - start) / duration, 1)
-      // ease-out cubic
-      const eased = 1 - Math.pow(1 - t, 3)
-      setCurrent(target * eased)
-      if (t < 1) {
-        frameRef.current = requestAnimationFrame(tick)
-      } else {
-        setCurrent(target)
-      }
-    }
-
-    frameRef.current = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frameRef.current)
-  }, [target, duration])
-
-  return current
-}
 
 // ── Stat Card ────────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-import { formatCurrency } from '../../utils/utils'
+import { formatCurrency } from '../../utils/formatters'
 import type { Category } from '../../types'
 import ChartItem from './ChartItem'
 
