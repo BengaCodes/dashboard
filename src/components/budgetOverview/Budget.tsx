@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { formatCurrency } from '../../utils/utils'
+import { formatCurrency } from '../../utils/formatters'
 
 interface BudgetProps {
   percentage: number
