@@ -401,7 +401,7 @@ function diffPreferences(original: Preferences, current: Preferences): Partial<P
   const patch: Partial<Preferences> = {}
   for (const key in current) {
     const k = key as keyof Preferences
-    if (current[k] !== original[k]) patch[k] = current[k]
+    if (current[k] !== original[k]) (patch as Record<string, unknown>)[k] = current[k]
   }
   return patch
 }

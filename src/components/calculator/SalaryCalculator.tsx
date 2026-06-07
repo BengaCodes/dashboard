@@ -151,8 +151,7 @@ const fmt = (n: number, dp = 0) =>
     minimumFractionDigits: dp, maximumFractionDigits: dp,
   }).format(n)
 
-const pct = (part: number, whole: number) =>
-  whole > 0 ? Math.round((part / whole) * 100) : 0
+
 
 // ── Shared styles ────────────────────────────────────────────
 
