@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import Dashboard from './components/dashboard/Dashboard'
-import SalaryCalculator from './components/calculator/SalaryCalculator'
-import SettingsPage from './components/settings/SettingsPage'
-import LandingPage from './components/landing/LandingPage'
+import DashboardPage  from './pages/DashboardPage'
+import CalculatorPage from './pages/CalculatorPage'
+import SettingsPage   from './pages/SettingsPage'
+import LandingPage    from './pages/LandingPage'
+import BudgetsPage    from './pages/BudgetsPage'
+import AnalyticsPage  from './pages/AnalyticsPage'
 import Layout from './components/layout/Layout'
 import { useAuth } from './state/useAuth'
 import Loading from './components/common/Loading'
@@ -19,9 +21,8 @@ const queryClient = new QueryClient({
 })
 
 const App = () => {
-  const { user, loading } = useAuth()
+  const { user } = useAuth()
 
-  if (loading) return <Loading />
   if (!user) {
     return (
       <Routes>
@@ -36,12 +37,12 @@ const App = () => {
       <Layout>
         <Suspense fallback={<Loading />}>
           <Routes>
-            <Route path='/' element={<Dashboard />} />
-            <Route path='/calculator' element={<SalaryCalculator />} />
-            <Route path='/budgets' element={<Dashboard />} />
-            <Route path='/analytics' element={<Dashboard />} />
-            <Route path='/settings' element={<SettingsPage />} />
-            <Route path='*' element={<Navigate to='/' replace />} />
+            <Route path='/'           element={<DashboardPage />}  />
+            <Route path='/calculator' element={<CalculatorPage />} />
+            <Route path='/budgets'    element={<BudgetsPage />}    />
+            <Route path='/analytics'  element={<AnalyticsPage />}  />
+            <Route path='/settings'   element={<SettingsPage />}   />
+            <Route path='*'           element={<Navigate to='/' replace />} />
           </Routes>
         </Suspense>
       </Layout>
