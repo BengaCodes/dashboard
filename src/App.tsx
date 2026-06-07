@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Dashboard from './components/dashboard/Dashboard'
+import SalaryCalculator from './components/calculator/SalaryCalculator'
 import SettingsPage from './components/settings/SettingsPage'
 import LandingPage from './components/landing/LandingPage'
 import Layout from './components/layout/Layout'
@@ -35,12 +36,12 @@ const App = () => {
       <Layout>
         <Suspense fallback={<Loading />}>
           <Routes>
-            <Route path='/'             element={<Dashboard />} />
-            <Route path='/transactions' element={<Dashboard />} />
-            <Route path='/budgets'      element={<Dashboard />} />
-            <Route path='/analytics'   element={<Dashboard />} />
-            <Route path='/settings'    element={<SettingsPage />} />
-            <Route path='*'            element={<Navigate to='/' replace />} />
+            <Route path='/' element={<Dashboard />} />
+            <Route path='/calculator' element={<SalaryCalculator />} />
+            <Route path='/budgets' element={<Dashboard />} />
+            <Route path='/analytics' element={<Dashboard />} />
+            <Route path='/settings' element={<SettingsPage />} />
+            <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
         </Suspense>
       </Layout>

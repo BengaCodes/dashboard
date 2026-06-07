@@ -7,10 +7,10 @@ import UserInput from '../userInput/userInput'
 // ── Route map ────────────────────────────────────────────────
 
 const NAV_LINKS = [
-  { label: 'Overview',      path: '/'             },
-  { label: 'Transactions',  path: '/transactions' },
-  { label: 'Budgets',       path: '/budgets'      },
-  { label: 'Analytics',     path: '/analytics'    },
+  { label: 'Overview', path: '/' },
+  { label: 'Calculator', path: '/calculator' },
+  { label: 'Budgets', path: '/budgets' },
+  { label: 'Analytics', path: '/analytics' }
 ] as const
 
 function isLinkActive(linkPath: string, pathname: string): boolean {
@@ -24,9 +24,8 @@ function isLinkActive(linkPath: string, pathname: string): boolean {
 
 const NavLink = ({
   label,
-  path,
   active,
-  onClick,
+  onClick
 }: {
   label: string
   path: string
@@ -47,7 +46,7 @@ const NavLink = ({
       background: active ? 'rgba(77,255,195,0.08)' : 'transparent',
       color: active ? 'var(--color-accent-green)' : 'var(--color-text-muted)',
       letterSpacing: '0.01em',
-      whiteSpace: 'nowrap',
+      whiteSpace: 'nowrap'
     }}
     onMouseEnter={(e) => {
       if (!active) {
@@ -72,7 +71,7 @@ const MobileDrawer = ({
   open,
   onClose,
   pathname,
-  navigate,
+  navigate
 }: {
   open: boolean
   onClose: () => void
@@ -96,7 +95,9 @@ const MobileDrawer = ({
   // Lock body scroll while open
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    return () => {
+      document.body.style.overflow = ''
+    }
   }, [open])
 
   if (!open) return null
@@ -116,7 +117,7 @@ const MobileDrawer = ({
           background: 'rgba(0,0,0,0.6)',
           backdropFilter: 'blur(2px)',
           zIndex: 200,
-          animation: 'fadeIn 150ms ease both',
+          animation: 'fadeIn 150ms ease both'
         }}
       />
 
@@ -136,7 +137,7 @@ const MobileDrawer = ({
           flexDirection: 'column',
           padding: '20px 12px',
           gap: '4px',
-          animation: 'slideInFromLeft 200ms ease both',
+          animation: 'slideInFromLeft 200ms ease both'
         }}
       >
         {/* Header */}
@@ -146,7 +147,7 @@ const MobileDrawer = ({
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '0 8px',
-            marginBottom: '20px',
+            marginBottom: '20px'
           }}
         >
           <FintraxxLogo />
@@ -164,10 +165,14 @@ const MobileDrawer = ({
               background: 'transparent',
               cursor: 'pointer',
               color: 'var(--color-text-muted)',
-              transition: 'background 150ms ease',
+              transition: 'background 150ms ease'
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+            }}
           >
             <X size={18} />
           </button>
@@ -189,13 +194,15 @@ const MobileDrawer = ({
                 borderRadius: '9px',
                 border: 'none',
                 background: active ? 'rgba(77,255,195,0.08)' : 'transparent',
-                color: active ? 'var(--color-accent-green)' : 'var(--color-text-muted)',
+                color: active
+                  ? 'var(--color-accent-green)'
+                  : 'var(--color-text-muted)',
                 fontFamily: 'var(--font-ui)',
                 fontWeight: active ? 600 : 400,
                 fontSize: '14px',
                 cursor: 'pointer',
                 textAlign: 'left',
-                transition: 'background 150ms ease, color 150ms ease',
+                transition: 'background 150ms ease, color 150ms ease'
               }}
               onMouseEnter={(e) => {
                 if (!active) {
@@ -220,7 +227,7 @@ const MobileDrawer = ({
           style={{
             height: '0.5px',
             background: 'rgba(255,255,255,0.07)',
-            margin: '8px 4px',
+            margin: '8px 4px'
           }}
         />
 
@@ -242,10 +249,14 @@ const MobileDrawer = ({
             fontSize: '14px',
             cursor: 'pointer',
             textAlign: 'left',
-            transition: 'background 150ms ease',
+            transition: 'background 150ms ease'
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(167,139,250,0.08)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(167,139,250,0.08)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent'
+          }}
         >
           <Settings size={15} style={{ color: '#A78BFA', flexShrink: 0 }} />
           Settings &amp; preferences
@@ -259,7 +270,7 @@ const MobileDrawer = ({
 
 const Navbar = () => {
   const { pathname } = useLocation()
-  const navigate     = useNavigate()
+  const navigate = useNavigate()
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   return (
@@ -270,7 +281,7 @@ const Navbar = () => {
           borderBottom: '0.5px solid rgba(255,255,255,0.07)',
           position: 'sticky',
           top: 0,
-          zIndex: 50,
+          zIndex: 50
         }}
       >
         <div
@@ -282,7 +293,7 @@ const Navbar = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '24px',
+            gap: '24px'
           }}
         >
           {/* Left — logo */}
@@ -327,10 +338,14 @@ const Navbar = () => {
                 background: 'transparent',
                 cursor: 'pointer',
                 color: 'var(--color-text-muted)',
-                transition: 'background 150ms ease',
+                transition: 'background 150ms ease'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+              }}
             >
               <Menu size={20} />
             </button>

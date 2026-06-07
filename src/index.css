@@ -14,7 +14,7 @@
 
   /* Text */
   --color-text-primary: #F0EFE8;
-  --color-text-muted:   #4A5068;
+  --color-text-muted:   #7A84A0; /* lifted from #4A5068 — WCAG AA on all bg tiers */
 
   /* Legacy aliases — kept so existing component refs don't break */
   --color-bg:              var(--color-bg-base);
@@ -37,11 +37,17 @@
   --font-ui:   'Syne', system-ui, sans-serif;
   --font-mono: 'DM Mono', 'Menlo', monospace;
 
-  /* Border Radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  /* Border Radius — 3-tier + pill
+     sm  (6px)  : tags, tiny badges
+     md  (10px) : buttons, inputs, small UI chips
+     lg  (14px) : content cards, panels
+     xl  (16px) : modals, overlays, large containers
+     pill(999px): rounded pills / avatars                 */
+  --radius-sm:   0.375rem;   /*  6px */
+  --radius-md:   0.625rem;   /* 10px */
+  --radius-lg:   0.875rem;   /* 14px */
+  --radius-xl:   1rem;       /* 16px */
+  --radius-pill: 624.9375rem; /* 999px */
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
@@ -170,6 +176,13 @@ body {
   }
 }
 
+/* ─── Calculator grid responsive ─────────────────────────── */
+@media (max-width: 700px) {
+  .calculator-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* ─── Landing page responsive grids ──────────────────────── */
 @media (max-width: 900px) {
   .features-grid {
@@ -205,4 +218,28 @@ body {
 .focus-ring:focus-visible {
   outline: 2px solid var(--color-accent-blue);
   outline-offset: 2px;
+}
+
+/* ─── Feature bento grid — span overrides ────────────────── */
+@media (max-width: 900px) {
+  .feature-card--hero { grid-column: span 2 !important; }
+  .feature-card--full { grid-column: span 2 !important; }
+}
+@media (max-width: 640px) {
+  .feature-card--hero,
+  .feature-card--full { grid-column: span 1 !important; }
+  .feature-card--full { flex-direction: column !important; }
+  .feature-card--full .feature-cta { display: none; }
+}
+
+/* ─── Reduced-motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:       0.01ms !important;
+    animation-iteration-count: 1     !important;
+    transition-duration:      0.01ms !important;
+    scroll-behavior:          auto   !important;
+  }
 }
