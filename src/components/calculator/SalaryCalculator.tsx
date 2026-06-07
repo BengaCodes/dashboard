@@ -48,7 +48,20 @@ const SalaryCalculator = () => {
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type })
-    setTimeout(() => setToast(null), 3200)
+    setTimeout(() => setToast(null), 4500)
+  }
+
+  const friendlyError = (err: unknown): string => {
+    const raw = err instanceof Error ? err.message : String(err)
+    if (/duplicate|conflict|unique|already exists/i.test(raw))
+      return 'You already have a recurring salary saved. Delete the existing one from your dashboard first, then save again.'
+    if (/internal server error|500/i.test(raw))
+      return 'The server rejected the save — you may already have a recurring income entry. Check your dashboard and remove it before saving again.'
+    if (/unauthorized|401|forbidden|403/i.test(raw))
+      return 'Your session has expired. Please sign out and sign back in, then try again.'
+    if (/fetch|network|Failed to fetch/i.test(raw))
+      return 'Unable to reach the server. Check your connection and try again.'
+    return raw || 'Something went wrong — please try again.'
   }
 
   const handleSave = async () => {
@@ -80,7 +93,7 @@ const SalaryCalculator = () => {
       setHistoryTick(t => t + 1)
       showToast(`${fmtGBP(monthlyNet, 2)} / mo added — this month and recurring`, 'success')
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Failed to save — please try again', 'error')
+      showToast(friendlyError(err), 'error')
     } finally {
       setSaving(false)
     }

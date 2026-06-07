@@ -5,6 +5,7 @@ import DashboardPage    from './pages/DashboardPage'
 import CalculatorPage   from './pages/CalculatorPage'
 import SettingsPage     from './pages/SettingsPage'
 import LandingPage      from './pages/LandingPage'
+import BudgetsPage      from './pages/BudgetsPage'
 import Layout from './components/layout/Layout'
 import { useAuth } from './state/useAuth'
 import Loading from './components/common/Loading'
@@ -37,7 +38,7 @@ const App = () => {
           <Routes>
             <Route path='/' element={<DashboardPage />} />
             <Route path='/calculator' element={<CalculatorPage />} />
-            <Route path='/budgets' element={<DashboardPage />} />
+            <Route path='/budgets' element={<BudgetsPage />} />
             <Route path='/analytics' element={<DashboardPage />} />
             <Route path='/settings' element={<SettingsPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />

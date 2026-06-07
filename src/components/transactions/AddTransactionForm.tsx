@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient, useQuery } from '@tanstack/react-query'
 import useInput, { type TransactionType } from '../../hooks/common/useInput'
-import type { Category, Transaction } from '../../types'
+import type { BudgetWithCategory, Category, Transaction } from '../../types'
 import Input from '../common/Input'
 import Select from '../common/Select'
 import Button from '../common/Button'
@@ -27,6 +27,12 @@ const TransactionForm = ({ handleModalClose, selectedDate }: Props) => {
   const queryClient = useQueryClient()
 
   const categories = queryClient.getQueryData<Category[]>(categoryQueries.all())
+
+  const { data: budgets = [] } = useQuery<BudgetWithCategory[]>({
+    queryKey: budgetQueries.all(),
+    queryFn:  budgetQueries.getBudgets,
+    staleTime: 1000 * 60 * 5,
+  })
 
   const defaultDate = new Date(
     selectedDate.getFullYear(),
@@ -64,6 +70,17 @@ const TransactionForm = ({ handleModalClose, selectedDate }: Props) => {
     () => (categories ?? []).map((c) => c.name),
     [categories]
   )
+
+  const selectedCategoryObj = useMemo(
+    () => categories?.find(c => c.name.toLowerCase() === String(category)),
+    [categories, category]
+  )
+
+  const missingBudget = useMemo(() => {
+    if (String(type) !== 'expense') return false
+    if (category === 'select category' || !selectedCategoryObj) return false
+    return !budgets.some(b => b.category_id === selectedCategoryObj.id)
+  }, [type, category, selectedCategoryObj, budgets])
 
   const isValid = useMemo(
     () =>
@@ -202,6 +219,20 @@ const TransactionForm = ({ handleModalClose, selectedDate }: Props) => {
         </div>
       )}
 
+      {missingBudget && (
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: '10px',
+          padding: '12px 14px', borderRadius: '8px',
+          background: 'rgba(255,181,71,0.08)', border: '0.5px solid rgba(255,181,71,0.3)',
+        }}>
+          <span style={{ color: '#FFB547', fontSize: '15px', lineHeight: 1, flexShrink: 0, marginTop: '1px' }}>⚠</span>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#FFB547', lineHeight: 1.55 }}>
+            No budget set for <strong>{selectedCategoryObj?.name}</strong>. Go to the{' '}
+            <strong>Budgets</strong> page and add one before tracking this expense.
+          </p>
+        </div>
+      )}
+
       {submitError && (
         <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(255,78,122,0.08)', border: '0.5px solid rgba(255,78,122,0.25)' }}>
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#FF4E7A' }}>{submitError}</p>
@@ -212,7 +243,7 @@ const TransactionForm = ({ handleModalClose, selectedDate }: Props) => {
         <Button type='button' variant='secondary' onClick={handleModalClose}>
           Cancel
         </Button>
-        <Button type='submit' disabled={!isValid || addMutation.isPending}>
+        <Button type='submit' disabled={!isValid || missingBudget || addMutation.isPending}>
           {addMutation.isPending ? 'Adding…' : 'Add Transaction'}
         </Button>
       </div>
