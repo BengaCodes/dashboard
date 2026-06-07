@@ -5,6 +5,7 @@ import Dashboard from './components/dashboard/Dashboard'
 import SalaryCalculator from './components/calculator/SalaryCalculator'
 import SettingsPage from './components/settings/SettingsPage'
 import LandingPage from './components/landing/LandingPage'
+import AnalyticsPage from './components/analytics/AnalyticsPage'
 import Layout from './components/layout/Layout'
 import { useAuth } from './state/useAuth'
 import Loading from './components/common/Loading'
@@ -39,7 +40,7 @@ const App = () => {
             <Route path='/' element={<Dashboard />} />
             <Route path='/calculator' element={<SalaryCalculator />} />
             <Route path='/budgets' element={<Dashboard />} />
-            <Route path='/analytics' element={<Dashboard />} />
+            <Route path='/analytics' element={<AnalyticsPage />} />
             <Route path='/settings' element={<SettingsPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
