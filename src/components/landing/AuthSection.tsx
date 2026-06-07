@@ -41,7 +41,11 @@ const AuthSection = ({
         await signIn(email, password)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      const raw = err instanceof Error ? err.message : 'Something went wrong'
+      setError(/fetch|network|Failed to fetch/i.test(raw)
+        ? 'Unable to connect. Please check your connection and try again.'
+        : raw === 'Unauthorized' ? 'Invalid email or password.'
+        : raw)
     } finally {
       setPending(false)
     }
@@ -116,12 +120,6 @@ const AuthSection = ({
               </div>
             )}
 
-            {error && (
-              <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(255,78,122,0.10)', border: '0.5px solid rgba(255,78,122,0.25)' }}>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#FF4E7A' }}>{error}</p>
-              </div>
-            )}
-
             <button
               type='submit'
               disabled={pending}
@@ -131,6 +129,19 @@ const AuthSection = ({
             >
               {pending ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
             </button>
+
+            {error && (
+              <div style={{
+                display: 'flex', alignItems: 'flex-start', gap: '10px',
+                padding: '12px 14px', borderRadius: '9px',
+                background: 'rgba(255,78,122,0.12)',
+                border: '1px solid rgba(255,78,122,0.4)',
+                animation: 'fadeIn 150ms ease both',
+              }}>
+                <span style={{ color: '#FF4E7A', fontSize: '14px', lineHeight: 1, flexShrink: 0, marginTop: '1px' }}>✕</span>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#FF4E7A', lineHeight: 1.5 }}>{error}</p>
+              </div>
+            )}
 
             <p style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--color-text-muted)' }}>
               {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}

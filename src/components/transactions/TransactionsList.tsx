@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import useMutationQuery from '../../hooks/api/useMutationQuery'
 import type { TransactionWithCategory } from '../../types'
 import { budgetQueries, transactionQueries } from '../../utils/dataQuery'
+import { transactionsApi } from '../../api/transactions.api'
 import TransactionCell from './TransactionCells'
 import Modal from '../modal/Modal'
 import TransactionForm from './AddTransactionForm'
@@ -19,7 +20,7 @@ const TransactionsList = ({
   transactions: TransactionWithCategory[]
   selectedDate: Date
 }) => {
-  const [openAdd, setOpenAdd] = useState(false)
+  const [openAdd,    setOpenAdd]    = useState(false)
   const [openUpload, setOpenUpload] = useState(false)
   const [filterType, setFilterType] = useState<(typeof FILTER_OPTIONS)[number]>('All')
 
@@ -30,15 +31,20 @@ const TransactionsList = ({
     return transactions.filter((t) => t.type === filterType.toLowerCase())
   }, [transactions, filterType])
 
+  const invalidate = async () => {
+    await queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
+    await queryClient.invalidateQueries({ queryKey: budgetQueries.all() })
+    await queryClient.invalidateQueries({ queryKey: budgetQueries.allWithSpent() })
+  }
+
   const { mutation: deleteMutation } = useMutationQuery({
     mutationFn: transactionQueries.deleteTransaction,
-    options: {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: transactionQueries.all() })
-        await queryClient.invalidateQueries({ queryKey: budgetQueries.all() })
-        await queryClient.invalidateQueries({ queryKey: budgetQueries.allWithSpent() })
-      }
-    }
+    options: { onSuccess: invalidate },
+  })
+
+  const { mutation: deleteAllMutation } = useMutationQuery({
+    mutationFn: (id: number) => transactionsApi.deleteAllRecurring(id),
+    options: { onSuccess: invalidate },
   })
 
   return (
@@ -200,6 +206,7 @@ const TransactionsList = ({
                 index={index}
                 transaction={tr}
                 handleDelete={() => deleteMutation.mutate(tr.id)}
+                handleDeleteAll={() => deleteAllMutation.mutate(tr.id)}
               />
             ))
           )}
