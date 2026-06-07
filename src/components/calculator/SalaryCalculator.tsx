@@ -76,10 +76,22 @@ const SalaryCalculator = () => {
         c.type === 'income' && /salary|income|pay|earning/i.test(c.name)
       ) ?? categories.find(c => c.type === 'income')
 
+      // Guard against duplicates — each gross salary should have one entry
+      const existing = await transactionsApi.getAll({ type: 'income' })
+      const hasDuplicate = existing.some(t =>
+        t.recurring &&
+        t.recurring_frequency === 'monthly' &&
+        t.description === 'Monthly salary (Calculator)'
+      )
+      if (hasDuplicate) {
+        showToast('A monthly salary is already saved. Remove the existing entry from your dashboard to update it.', 'error')
+        return
+      }
+
       const monthlyNet = Math.round((result.net / 12) * 100) / 100
       const today      = new Date().toISOString().split('T')[0]
       const base = {
-        description:  'Monthly salary',
+        description:  'Monthly salary (Calculator)',
         amount:       monthlyNet,
         type:         'income' as const,
         category_id:  incomeCat?.id ?? null,
