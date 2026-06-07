@@ -1,0 +1,25 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+# ── API proxy ──────────────────────────────────────────────────────────────────
+# The frontend calls your NestJS backend via VITE_API_URL (set in Netlify's
+# environment variables dashboard). Once your backend is deployed, add its URL
+# there and the app will use it automatically.
+#
+# Alternatively, uncomment the block below and set `to` to your backend URL.
+# Netlify will then proxy /api/* calls so you can leave VITE_API_URL unset.
+#
+# [[redirects]]
+#   from  = "/api/*"
+#   to    = "https://your-nestjs-backend.com/api/:splat"
+#   status = 200
+#   force  = true
+
+# ── SPA fallback ───────────────────────────────────────────────────────────────
+# React Router owns all client-side routing. Without this, a hard refresh on
+# any route other than / returns a 404 from Netlify's CDN.
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

@@ -1,4 +1,9 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+// In production set VITE_API_URL in Netlify's environment variables to your
+// deployed backend URL (e.g. https://api.fintraxx.com/api).
+// In development it falls back to the local NestJS server.
+const BASE_URL: string =
+  (import.meta.env.VITE_API_URL as string | undefined) ??
+  (import.meta.env.DEV ? 'http://localhost:3001/api' : '/api')
 
 const getToken = () => localStorage.getItem('fintraxx_token')
 
