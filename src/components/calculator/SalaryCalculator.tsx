@@ -2,8 +2,9 @@ import { useState, useMemo, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../state/useAuth'
-import { calculatorApi } from '../../api/calculator.api'
-import type { CalcSnapshot } from '../../api/calculator.api'
+import { transactionsApi } from '../../api/transactions.api'
+import { categoriesApi }   from '../../api/categories.api'
+import type { TransactionWithCategory } from '../../types'
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -382,7 +383,7 @@ const Toast = ({
 
 // ── Calculation history list ──────────────────────────────────
 
-const CalcHistoryList = ({ history }: { history: CalcSnapshot[] }) => (
+const CalcHistoryList = ({ history }: { history: TransactionWithCategory[] }) => (
   <div style={{
     marginTop: '14px',
     borderRadius: '12px',
@@ -399,12 +400,12 @@ const CalcHistoryList = ({ history }: { history: CalcSnapshot[] }) => (
         textTransform: 'uppercase', letterSpacing: '0.12em',
         color: 'rgba(255,255,255,0.3)',
       }}>
-        Recent Calculations
+        Saved recurring income
       </span>
     </div>
-    {history.map((snap, i) => (
+    {history.map((tx, i) => (
       <div
-        key={snap.id}
+        key={tx.id}
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr auto auto',
@@ -415,15 +416,15 @@ const CalcHistoryList = ({ history }: { history: CalcSnapshot[] }) => (
         }}
       >
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-text-muted)' }}>
-          {new Date(snap.savedAt).toLocaleDateString('en-GB', {
+          {new Date(tx.date).toLocaleDateString('en-GB', {
             day: 'numeric', month: 'short', year: 'numeric',
           })}
         </span>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-text-primary)' }}>
-          {fmt(snap.gross)} gross
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-text-primary)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {tx.description}
         </span>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#4DFFC3' }}>
-          {fmt(snap.takehome)} take-home
+          {fmt(tx.amount, 2)} / mo
         </span>
       </div>
     ))}
@@ -845,18 +846,20 @@ const SalaryCalculator = () => {
   const [resultPeriod,    setResultPeriod]    = useState<ResultPeriod>('annual')
   const [toast,           setToast]           = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [saving,          setSaving]          = useState(false)
-  const [history,         setHistory]         = useState<CalcSnapshot[]>([])
+  const [history,         setHistory]         = useState<TransactionWithCategory[]>([])
   const [historyTick,     setHistoryTick]     = useState(0)
 
   const navigate = useNavigate()
   const { user } = useAuth()
 
-  // Fetch last 5 saved calculations whenever user or historyTick changes
+  // Fetch the last 5 recurring income transactions created from the calculator
   useEffect(() => {
     if (!user) return
-    calculatorApi.getHistory()
-      .then(data => setHistory(data.slice(0, 5)))
-      .catch(() => {}) // silently fail — endpoint may not be deployed yet
+    transactionsApi.getAll({ type: 'income', order: 'desc', limit: 20 })
+      .then(txs => setHistory(
+        txs.filter(t => t.recurring && t.recurring_frequency === 'monthly').slice(0, 5)
+      ))
+      .catch(() => {})
   }, [user, historyTick])
 
   const showToast = (message: string, type: 'success' | 'error') => {
@@ -871,29 +874,30 @@ const SalaryCalculator = () => {
     }
     setSaving(true)
     try {
-      await calculatorApi.save({
-        inputs: {
-          gross,
-          pensionPct:      parseFloat(pensionPct) || 0,
-          region,
-          age:             ageNum,
-          studentLoan,
-          blindAllowance,
-          salarySacrifice,
-          taxCode,
-          taxYear,
-        },
-        results: {
-          takehome:      result.net,
-          incomeTax:     result.incomeTax,
-          ni:            result.ni,
-          pension:       result.pension,
-          effectiveRate,
-          marginalRate,
-        },
-      })
+      // Find the most relevant income category (prefer Salary/Income named ones)
+      const categories  = await categoriesApi.getAll()
+      const incomeCat   = categories.find(c =>
+        c.type === 'income' && /salary|income|pay|earning/i.test(c.name)
+      ) ?? categories.find(c => c.type === 'income')
+
+      const monthlyNet = Math.round((result.net / 12) * 100) / 100
+      const today      = new Date().toISOString().split('T')[0]
+      const base = {
+        description:  'Monthly salary',
+        amount:       monthlyNet,
+        type:         'income' as const,
+        category_id:  incomeCat?.id ?? null,
+      }
+
+      await transactionsApi.bulkCreate([
+        // This month's income — shows up in the dashboard immediately
+        { ...base, date: today, recurring: false },
+        // Recurring template — fires every month going forward
+        { ...base, date: today, recurring: true, recurring_frequency: 'monthly' as const, recurring_end_date: null },
+      ])
+
       setHistoryTick(t => t + 1)
-      showToast('Calculation saved to dashboard', 'success')
+      showToast(`${fmt(monthlyNet, 2)} / mo added — this month and recurring`, 'success')
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Failed to save — please try again', 'error')
     } finally {
